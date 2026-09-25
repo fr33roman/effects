@@ -1,0 +1,3774 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<!-- Собрано build.py из page.html, lab.css, lab.js и fx/*.js — руками не править -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Полка эффектов — open-sites.io</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080a; --ink:#f3f1ec; --muted:#9a98a6; --line:rgba(255,255,255,.09);
+  --violet:#a78bfa; --pink:#f472b6; --cyan:#7dd3fc; --lime:#d9f26a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Onest',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+
+/* ── шапка ── */
+.top{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;gap:18px;padding:14px 22px;
+  background:linear-gradient(180deg,rgba(7,8,10,.85),rgba(7,8,10,0));pointer-events:none}
+.top>*{pointer-events:auto}
+.brand{font-weight:700;letter-spacing:-.01em;text-decoration:none;display:flex;align-items:center;gap:10px}
+.brand i{width:22px;height:22px;border-radius:6px;background:conic-gradient(from 200deg,var(--violet),var(--pink),var(--cyan),var(--violet));display:block}
+.nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.nav{max-width:min(62vw,790px)}
+.nav a{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;text-decoration:none;font-size:11.5px;font-weight:600;
+  color:var(--muted);border:1px solid var(--line);background:rgba(10,10,14,.6);backdrop-filter:blur(6px);transition:.25s}
+.nav a:hover{color:var(--ink);border-color:rgba(255,255,255,.3)}
+.nav a.on{color:#0b0b0f;background:var(--ink);border-color:var(--ink)}
+@media (max-width:760px){.nav{display:none}}
+
+/* ── первый экран ── */
+.intro{min-height:100svh;display:grid;align-content:center;padding:120px 7vw 80px;position:relative;overflow:hidden}
+.intro::before{content:"";position:absolute;inset:-20%;background:
+  radial-gradient(40% 35% at 20% 30%,rgba(167,139,250,.22),transparent 70%),
+  radial-gradient(35% 30% at 80% 70%,rgba(244,114,182,.16),transparent 70%),
+  radial-gradient(30% 30% at 60% 20%,rgba(125,211,252,.12),transparent 70%);
+  animation:drift 18s ease-in-out infinite alternate;pointer-events:none}
+@keyframes drift{to{transform:translate3d(3%,-4%,0) rotate(6deg)}}
+.intro h1{font-size:clamp(46px,9vw,132px);line-height:.92;letter-spacing:-.045em;margin:0;font-weight:800;perspective:900px}
+.intro h1 .wd{display:inline-block;white-space:nowrap;perspective:900px}   /* слово не рвётся; перспектива — на слово */
+.intro h1 .ch{display:inline-block;transform-origin:50% 100%;transform:rotateX(-92deg) translateY(.2em);opacity:0;
+  transition:transform 1.1s cubic-bezier(.2,.9,.2,1),opacity .6s;transition-delay:calc(var(--i)*38ms)}
+.intro h1.go .ch{transform:none;opacity:1}
+@media (prefers-reduced-motion:reduce){.intro h1 .ch{transform:none;opacity:1;transition:none}}
+.intro h1 .ch:hover{transform:rotateX(18deg) translateZ(20px);color:var(--violet);transition-delay:0s;transition-duration:.35s}
+.intro p{max-width:560px;font-size:19px;line-height:1.5;color:var(--muted);margin:28px 0 0}
+.intro .list{display:flex;flex-wrap:wrap;gap:8px;margin-top:34px;max-width:860px}
+.intro .list a{text-decoration:none;font-size:14px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);transition:.25s}
+.intro .list a:hover{border-color:rgba(167,139,250,.6);background:rgba(167,139,250,.1)}
+.intro .list b{color:var(--violet);font-weight:700;margin-right:6px}
+/* нагрузка эффекта: точка после названия */
+.ld-l{--dot:#86efac}.ld-m{--dot:#fbbf24}.ld-h{--dot:#fb7185}
+.intro .list a::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;margin-left:8px;background:var(--dot);vertical-align:1px}
+.intro .legend{font-size:14px;margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;max-width:none}
+.intro .legend span{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}   /* точка не отрывается от слова */
+.intro .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dot)}
+.intro .legend .legend__hint{white-space:normal;opacity:.75}
+
+/* ── секции эффектов ── */
+.fx{position:relative;height:100svh;min-height:560px;border-top:1px solid var(--line)}
+.fx--tall{height:var(--h,300vh)}
+.fx__stage{position:relative;height:100svh;min-height:560px;overflow:hidden;background:var(--bg)}
+.fx--tall .fx__stage{position:sticky;top:0}
+.fx__gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* затемнение под подписью: текст читается на любом эффекте */
+.fx__stage::after{content:"";position:absolute;left:0;right:0;bottom:0;height:62%;z-index:3;pointer-events:none;
+  background:linear-gradient(0deg,rgba(7,8,10,.88) 0%,rgba(7,8,10,.55) 38%,rgba(7,8,10,0) 100%)}
+.fx__stage.no-shade::after{display:none}
+.fx__cap{position:absolute;left:clamp(16px,5vw,64px);bottom:clamp(20px,6vh,64px);z-index:5;max-width:440px;pointer-events:none}
+.fx__cap--top{bottom:auto;top:clamp(80px,12vh,120px)}
+.fx--tall .fx__cap{opacity:var(--capo,1);transition:opacity .25s}
+.fx__cap--right{left:auto;right:clamp(16px,5vw,64px)}
+.fx__n{font-size:13px;font-weight:700;letter-spacing:.14em;color:var(--violet)}
+.fx__cap h2{font-size:clamp(34px,5.4vw,68px);line-height:.95;letter-spacing:-.035em;margin:10px 0 14px;font-weight:800}
+.fx__cap p{font-size:17px;line-height:1.5;color:#c9c7d2;margin:0 0 16px;text-shadow:0 1px 18px rgba(0,0,0,.6)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;background:rgba(10,10,14,.55);
+  border:1px solid var(--line);color:#d9d7e2;backdrop-filter:blur(6px)}
+/* пока эффект грузится (библиотека приходит из интернета, 1–2 секунды) — видно, что идёт загрузка */
+.fx:not(.is-ready):not(.is-broken) .fx__stage::before{content:"загружаю эффект…";position:absolute;left:0;right:0;top:46%;
+  text-align:center;color:var(--muted);font-size:15px;letter-spacing:.02em;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.fx.is-broken .fx__stage::before{content:"эффект не запустился: проверьте интернет и ускорение графики в настройках браузера";
+  position:absolute;left:16px;right:16px;top:46%;text-align:center;color:var(--muted);font-size:15px}
+
+/* ── 6. цилиндр работ ── */
+.cyl{position:absolute;inset:0;perspective:var(--p,1400px);perspective-origin:50% 42%;
+  background:radial-gradient(70% 55% at 50% 58%,#1d1826 0%,#09080c 70%)}
+.cyl__ring{position:absolute;left:50%;top:calc(50% + var(--y,4vh));width:var(--w);height:var(--h);
+  margin:calc(var(--h)/-2) 0 0 calc(var(--w)/-2);transform-style:preserve-3d;will-change:transform}
+.cyl__card{position:absolute;inset:0;margin:0;border-radius:18px;overflow:hidden;backface-visibility:hidden;
+  box-shadow:0 30px 60px rgba(0,0,0,.55);background:#16141b;transition:box-shadow .4s}
+.cyl__card img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none}
+.cyl__card figcaption{position:absolute;left:12px;bottom:12px;font-size:13px;font-weight:600;padding:6px 10px;border-radius:999px;
+  background:rgba(8,8,12,.62);backdrop-filter:blur(6px);opacity:0;transform:translateY(6px);transition:.35s}
+.cyl__card.front{box-shadow:0 30px 80px rgba(167,139,250,.35),0 0 0 1px rgba(255,255,255,.18)}
+.cyl__card.front figcaption{opacity:1;transform:none}
+.cyl__floor{position:absolute;left:50%;top:calc(50% + var(--y,4vh) + var(--h)/2 + 24px);width:120vw;height:40vh;transform:translateX(-50%);
+  background:radial-gradient(45% 40% at 50% 0%,rgba(167,139,250,.22),transparent 70%)}
+.fx#fx6 .fx__stage{cursor:grab}
+.fx#fx6 .fx__stage:active{cursor:grabbing}
+
+/* ── 8. разнесённая сборка ── */
+.xp{position:absolute;inset:0;display:grid;place-items:center;perspective:1800px;
+  background:radial-gradient(60% 60% at 60% 50%,#10222a 0%,#07090c 72%)}
+.xp__stack{position:relative;width:300px;height:600px;transform-style:preserve-3d;will-change:transform;margin:14vh 0 0 16vw}
+.xp__layer{position:absolute;inset:0;border-radius:34px;transform-style:preserve-3d;will-change:transform}
+.xp__layer>div{position:absolute;inset:0;border-radius:34px}
+.xp__bg{background:radial-gradient(90% 60% at 30% 20%,#1d4a52 0%,#0d2126 55%,#081417 100%);box-shadow:0 40px 90px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08)}
+.xp__photo{inset:18px 18px auto 18px!important;height:300px;background-size:cover;background-position:center;border-radius:22px!important;box-shadow:0 20px 40px rgba(0,0,0,.45)}
+.xp__text{inset:auto 26px 150px 26px!important;height:auto!important;display:grid;gap:8px;border-radius:0!important}
+.xp__text small{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8fd3cf}
+.xp__text b{font-size:27px;line-height:1.05;letter-spacing:-.02em}
+.xp__text span{font-size:14px;color:#b9d6d4}
+.xp__ui{inset:auto 22px 28px 22px!important;height:auto!important;display:flex;flex-wrap:wrap;gap:8px;border-radius:0!important}
+.xp__ui i{font-style:normal;font-size:13px;font-weight:600;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+.xp__ui em{font-style:normal;flex:1 0 100%;text-align:center;font-weight:700;padding:15px;border-radius:16px;background:#e9f6f4;color:#0b2226;box-shadow:0 12px 30px rgba(143,211,207,.35)}
+.xp__sheen{background:linear-gradient(125deg,rgba(255,255,255,.22) 0%,rgba(255,255,255,0) 32%,rgba(255,255,255,0) 64%,rgba(255,255,255,.1) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.xp__tag{position:absolute;left:100%;top:22%;margin-left:30px;white-space:nowrap;font-size:16px;font-weight:600;color:#effcfb;
+  opacity:var(--show,0);display:flex;align-items:center;gap:10px;padding:7px 13px 7px 10px;border-radius:999px;
+  background:rgba(8,20,23,.78);border:1px solid rgba(143,211,207,.35);transform-origin:0 50%;
+  transform:rotateY(calc(var(--ay,0) * -1deg)) rotateZ(calc(var(--az,0) * -1deg)) rotateX(calc(var(--ax,0) * -1deg))}
+.xp__tag b{color:#8fd3cf;font-size:12.5px}
+@media (max-width:760px){.xp__stack{margin:-12vh 0 0 -22vw}.xp__tag{font-size:13px}}
+
+/* ── 9. голографическая карта ── */
+.holo{position:absolute;inset:0;display:grid;place-items:center;perspective:1100px;
+  background:radial-gradient(55% 50% at 62% 45%,#241a2e 0%,#09080c 70%)}
+.holo__card{position:relative;width:min(480px,82vw);aspect-ratio:1.586;border-radius:24px;transform-style:preserve-3d;
+  will-change:transform;margin-left:14vw;box-shadow:0 50px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.08)}
+.holo__card>div{position:absolute;inset:0;border-radius:24px;overflow:hidden}
+.holo__base{background:
+  radial-gradient(120% 90% at 0% 0%,#2a2433 0%,#141119 60%),
+  repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 2px,transparent 2px 9px)}
+.holo__foil{mix-blend-mode:color-dodge;opacity:.55;
+  background:
+    repeating-linear-gradient(115deg,#ff6b9a 0%,#ffd36b 7%,#7dffb2 14%,#6bd5ff 21%,#b18cff 28%,#ff6b9a 35%);
+  background-size:220% 220%;background-position:var(--pos,50%) var(--pos,50%);
+  -webkit-mask-image:radial-gradient(90% 90% at var(--mx,50%) var(--my,50%),#000 0%,rgba(0,0,0,.35) 55%,transparent 80%);
+          mask-image:radial-gradient(90% 90% at var(--mx,50%) var(--my,50%),#000 0%,rgba(0,0,0,.35) 55%,transparent 80%)}
+.holo__glare{mix-blend-mode:overlay;background:radial-gradient(60% 60% at var(--mx,50%) var(--my,50%),rgba(255,255,255,.75) 0%,rgba(255,255,255,0) 60%)}
+.holo__content{padding:26px 28px;display:grid;grid-template-rows:auto auto 1fr auto;transform:translateZ(40px);color:#f6f2ff}
+.holo__top{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
+.holo__mark{width:30px;height:30px;border-radius:50%;background:conic-gradient(from 90deg,#d9d4e6,#8a8398,#f4f1fb,#8a8398,#d9d4e6);
+  box-shadow:inset 0 0 0 5px rgba(20,17,25,.8)}
+.holo__kind{margin-top:22px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#cfc6e6}
+.holo__value{font-size:clamp(46px,7vw,72px);font-weight:800;letter-spacing:-.03em;align-self:center}
+.holo__bottom{display:flex;justify-content:space-between;font-size:13px;color:#cfc6e6}
+@media (max-width:760px){.holo__card{margin-left:0;margin-top:-18vh}}
+
+/* подписи по ходу прокрутки (предмет, сборка, туннель) */
+.beats{position:absolute;inset:0;z-index:4;pointer-events:none}
+.beat{position:absolute;opacity:0;transform:translateY(16px);transition:opacity .5s,transform .6s cubic-bezier(.2,.9,.2,1);
+  max-width:260px;font-size:15px;line-height:1.45;color:#dedce6}
+.beat b{display:block;font-size:26px;letter-spacing:-.02em;color:var(--ink);margin-bottom:4px}
+.beat.on{opacity:1;transform:none}
+.beat::before{content:"";display:block;width:34px;height:2px;background:var(--violet);margin-bottom:12px}
+
+/* ── подвал ── */
+.how{padding:100px 7vw 120px;border-top:1px solid var(--line);display:grid;gap:40px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.how h2{grid-column:1/-1;font-size:clamp(30px,4vw,48px);letter-spacing:-.03em;margin:0}
+.how div{border:1px solid var(--line);border-radius:18px;padding:24px;background:rgba(255,255,255,.02)}
+.how h3{margin:0 0 10px;font-size:19px}
+.how p{margin:0;color:var(--muted);line-height:1.55;font-size:15.5px}
+.how code{font-family:ui-monospace,Consolas,monospace;font-size:13.5px;color:var(--ink);background:rgba(255,255,255,.06);padding:2px 6px;border-radius:6px}
+
+@media (max-width:760px){
+  .fx__cap{right:16px;max-width:none}
+  .fx__cap p{font-size:15.5px}
+  /* на телефоне подписи истории — внизу, под предметом, а не поверх него */
+  .beat{left:16px!important;right:16px!important;top:auto!important;bottom:12vh;max-width:none}
+}
+
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="#top"><i></i>Полка эффектов</a>
+  <nav class="nav" aria-label="Эффекты">
+    <a href="#fx1">1</a><a href="#fx2">2</a><a href="#fx3">3</a><a href="#fx4">4</a><a href="#fx5">5</a>
+    <a href="#fx6">6</a><a href="#fx7">7</a><a href="#fx8">8</a><a href="#fx9">9</a><a href="#fx10">10</a>
+    <a href="#fx11">11</a><a href="#fx12">12</a><a href="#fx13">13</a><a href="#fx14">14</a><a href="#fx15">15</a>
+    <a href="#fx16">16</a><a href="#fx17">17</a><a href="#fx18">18</a><a href="#fx19">19</a><a href="#fx20">20</a>
+    <a href="#fx21">21</a><a href="#fx22">22</a><a href="#fx23">23</a><a href="#fx24">24</a><a href="#fx25">25</a>
+  </nav>
+</header>
+
+<section class="intro" id="top">
+  <h1 data-split>Полка эффектов</h1>
+  <p>Двадцать пять объёмных эффектов для наших сайтов. Каждый ставится в первый экран или в главный блок и работает на телефоне.</p>
+  <div class="list">
+    <a href="#fx1" class="ld-m"><b>1</b>Живое поле</a><a href="#fx2" class="ld-l"><b>2</b>Живое фото</a><a href="#fx3" class="ld-m"><b>3</b>Предмет на прокрутке</a>
+    <a href="#fx4" class="ld-m"><b>4</b>Частицы</a><a href="#fx5" class="ld-h"><b>5</b>Стекло и свет</a><a href="#fx6" class="ld-l"><b>6</b>Цилиндр работ</a>
+    <a href="#fx7" class="ld-m"><b>7</b>Туннель</a><a href="#fx8" class="ld-l"><b>8</b>Разнесённая сборка</a><a href="#fx9" class="ld-l"><b>9</b>Голографическая карта</a>
+    <a href="#fx10" class="ld-m"><b>10</b>Жидкий металл</a><a href="#fx11" class="ld-m"><b>11</b>Вода под пальцем</a><a href="#fx12" class="ld-h"><b>12</b>Кристалл</a>
+    <a href="#fx13" class="ld-h"><b>13</b>Лава-лампа</a><a href="#fx14" class="ld-m"><b>14</b>Точечная волна</a><a href="#fx15" class="ld-m"><b>15</b>Глобус маршрутов</a>
+    <a href="#fx16" class="ld-m"><b>16</b>Слайд-шоу</a><a href="#fx17" class="ld-l"><b>17</b>Диорама Батуми</a><a href="#fx18" class="ld-m"><b>18</b>Разлетающееся фото</a>
+    <a href="#fx19" class="ld-m"><b>19</b>Лепестки</a><a href="#fx20" class="ld-l"><b>20</b>Физика плашек</a><a href="#fx21" class="ld-l"><b>21</b>Прожектор</a>
+    <a href="#fx22" class="ld-l"><b>22</b>Неоновая вывеска</a><a href="#fx23" class="ld-l"><b>23</b>До и после</a><a href="#fx24" class="ld-l"><b>24</b>Меню-гармошка</a>
+    <a href="#fx25" class="ld-l"><b>25</b>Живая инфографика</a>
+  </div>
+  <p class="legend"><span><i class="ld-l"></i>лёгкая нагрузка</span><span><i class="ld-m"></i>средняя</span><span><i class="ld-h"></i>высокая</span><span class="legend__hint">для телефона выбирать лёгкие и средние</span></p>
+</section>
+
+<section class="fx" id="fx1" data-fx="grass">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">01 · WEBGL</div>
+      <h2>Живое поле</h2>
+      <p>Тысячи травинок колышутся от ветра и расступаются под курсором. Для цветов, садов, спа и детских центров.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка средняя</span><span>телефон — облегчённый</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx2" data-fx="liquid-photo">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">02 · WEBGL</div>
+      <h2>Живое фото</h2>
+      <p>Фотография течёт за курсором, как вода. Для первого экрана салона, ресторана или студии.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка лёгкая</span><span>любое фото клиента</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx3" data-fx="product" data-scroll style="--h:320vh">
+  <div class="fx__stage">
+    <div class="beats">
+      <div class="beat" data-at="0.14" style="left:8vw;top:24vh"><b>50 мл</b>Флакон поворачивается, пока вы листаете.</div>
+      <div class="beat" data-at="0.42" style="right:8vw;top:30vh"><b>Стекло 4 мм</b>Свет проходит насквозь и преломляется.</div>
+      <div class="beat" data-at="0.7" style="left:8vw;top:56vh"><b>Нота кедра</b>Каждая деталь товара — в свой момент прокрутки.</div>
+    </div>
+    <div class="fx__cap fx__cap--right">
+      <div class="fx__n">03 · WEBGL · ПРОКРУТКА</div>
+      <h2>Предмет на прокрутке</h2>
+      <p>Товар в 3D поворачивается и показывает детали по мере прокрутки. Для косметики, кофе, свечей, часов.</p>
+      <div class="tags"><span>товар</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx4" data-fx="particles" data-scroll style="--h:320vh">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">04 · WEBGL · ПРОКРУТКА</div>
+      <h2>Частицы</h2>
+      <p>Облако из тысяч точек собирается в шар, в слово, в узел и в спираль. Для логотипа и первого экрана.</p>
+      <div class="tags"><span>логотип</span><span>нагрузка средняя</span><span>слово меняется</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx5" data-fx="glass">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">05 · WEBGL</div>
+      <h2>Стекло и свет</h2>
+      <p>Стеклянные формы плывут и преломляют цвет за собой. Для клиник, салонов и всего, где важна чистота.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка высокая</span><span>телефон — облегчённый</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx6" data-fx="cylinder" data-scroll style="--h:260vh">
+  <div class="fx__stage">
+    <div class="fx__cap fx__cap--top">
+      <div class="fx__n">06 · CSS 3D · ПРОКРУТКА</div>
+      <h2>Цилиндр работ</h2>
+      <p>Фото работ по кругу, прокрутка вращает цилиндр, пальцем можно крутить. Для барберов, флористов, интерьеров.</p>
+      <div class="tags"><span>портфолио</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx7" data-fx="tunnel" data-scroll style="--h:420vh">
+  <div class="fx__stage">
+    <div class="beats">
+      <div class="beat" data-at="0.08" style="left:7vw;top:22vh"><b>Балкон</b>Первое, что видит гость.</div>
+      <div class="beat" data-at="0.34" style="right:7vw;top:26vh"><b>Спальня</b>Окно на восток, утром светло.</div>
+      <div class="beat" data-at="0.6" style="left:7vw;top:30vh"><b>Кухня</b>Всё для завтрака.</div>
+      <div class="beat" data-at="0.86" style="right:7vw;top:24vh"><b>Море</b>Семь минут пешком.</div>
+    </div>
+    <div class="fx__cap">
+      <div class="fx__n">07 · WEBGL · ПРОКРУТКА</div>
+      <h2>Туннель</h2>
+      <p>Камера летит сквозь кадры. Для истории: путь гостя, этапы ремонта, шаги записи.</p>
+      <div class="tags"><span>история</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx8" data-fx="exploded" data-scroll style="--h:300vh">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">08 · CSS 3D · ПРОКРУТКА</div>
+      <h2>Разнесённая сборка</h2>
+      <p>Экран раскладывается на слои и собирается обратно. Для рассказа, из чего состоит услуга или продукт.</p>
+      <div class="tags"><span>объяснение</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx9" data-fx="holo-card">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">09 · CSS 3D</div>
+      <h2>Голографическая карта</h2>
+      <p>Подарочный сертификат с переливом наклоняется за курсором, на телефоне — за наклоном руки. Для салонов, барберов, спа.</p>
+      <div class="tags"><span>подарок</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx10" data-fx="chrome">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">10 · WEBGL</div>
+      <h2>Жидкий металл</h2>
+      <p>Хромовая капля переливается и тянется к курсору. Для техники, ювелирки и премиальных услуг.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx11" data-fx="water">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">11 · WEBGL</div>
+      <h2>Вода под пальцем</h2>
+      <p>Фото под водой: курсор гонит круги, вода преломляет картинку, без курсора падают капли. Для бассейнов, спа и квартир у моря.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx12" data-fx="crystal">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">12 · WEBGL</div>
+      <h2>Кристалл</h2>
+      <p>Огранённый камень играет светом и раскладывает его на радугу, камень меняется кнопкой. Для ювелирных, премиальной косметики, подарков.</p>
+      <div class="tags"><span>товар</span><span>нагрузка высокая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx13" data-fx="lava">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">13 · WEBGL · ЛУЧИ</div>
+      <h2>Лава-лампа</h2>
+      <p>Капли тягучей лавы сливаются и расходятся, одна идёт за курсором. Для напитков, кальянных и творческих студий.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка высокая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx14" data-fx="dotwave">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">14 · WEBGL</div>
+      <h2>Точечная волна</h2>
+      <p>Поле из тысяч точек дышит волной, курсор пускает по нему круги. Для IT, финансов и агентств.</p>
+      <div class="tags"><span>фон первого экрана</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx15" data-fx="globe">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">15 · WEBGL</div>
+      <h2>Глобус маршрутов</h2>
+      <p>Земля из точек с настоящими материками, из Батуми расходятся маршруты, глобус можно крутить. Для доставки, туризма и логистики.</p>
+      <div class="tags"><span>география</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx16" data-fx="slideshow">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">16 · WEBGL</div>
+      <h2>Слайд-шоу</h2>
+      <p>Фото сменяют друг друга растекающейся границей, листать стрелками или пальцем. Для интерьеров, отелей и ресторанов.</p>
+      <div class="tags"><span>галерея</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx17" data-fx="diorama">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">17 · CSS 3D · SVG</div>
+      <h2>Диорама Батуми</h2>
+      <p>Горы, город и море слоями на разной глубине, сцена поворачивается за курсором или наклоном телефона. Для отелей и квартир у моря.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка лёгкая</span><span>день, закат, ночь</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx18" data-fx="shards" data-scroll style="--h:300vh">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">18 · WEBGL · ПРОКРУТКА</div>
+      <h2>Разлетающееся фото</h2>
+      <p>На прокрутке снимок разлетается осколками и собирается уже другим. Для истории «было и стало»: ремонт, дизайн, стиль.</p>
+      <div class="tags"><span>прокрутка</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx19" data-fx="petals">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">19 · CANVAS</div>
+      <h2>Лепестки</h2>
+      <p>Лепестки падают с глубиной и уносятся от курсора, есть снег и листья под сезон. Для цветов, свадеб и сезонных акций.</p>
+      <div class="tags"><span>фон</span><span>нагрузка средняя</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx20" data-fx="physics">
+  <div class="fx__stage">
+    <div class="fx__cap fx__cap--top">
+      <div class="fx__n">20 · CANVAS · ФИЗИКА</div>
+      <h2>Физика плашек</h2>
+      <p>Услуги падают плашками и складываются в горку, их можно хватать и бросать. Для блока «что мы делаем» в любой нише.</p>
+      <div class="tags"><span>услуги</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx21" data-fx="spotlight">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">21 · CSS</div>
+      <h2>Прожектор</h2>
+      <p>Зал в темноте, курсор светит фонарём и находит скрытую надпись. Для баров, квест-комнат, барбершопа вечером.</p>
+      <div class="tags"><span>первый экран</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx22" data-fx="neon">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">22 · CSS · SVG</div>
+      <h2>Неоновая вывеска</h2>
+      <p>Вывеска мерцает, отражение дрожит в луже, идёт дождь. Включается кнопкой, буквы загораются по одной. Для баров, барбершопов, кальянных.</p>
+      <div class="tags"><span>вывеска</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx23" data-fx="beforeafter">
+  <div class="fx__stage">
+    <div class="fx__cap fx__cap--top">
+      <div class="fx__n">23 · CSS</div>
+      <h2>До и после</h2>
+      <p>Шторка показывает разницу, лупа — детали. Для клининга, ремонта и стоматологии.</p>
+      <div class="tags"><span>доказательство</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx fx--tall" id="fx24" data-fx="menufold" data-scroll style="--h:280vh">
+  <div class="fx__stage">
+    <div class="fx__cap">
+      <div class="fx__n">24 · CSS 3D · ПРОКРУТКА</div>
+      <h2>Меню-гармошка</h2>
+      <p>Буклет меню раскладывается гармошкой по мере прокрутки. Для кафе, ресторанов и прайса услуг.</p>
+      <div class="tags"><span>меню</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="fx" id="fx25" data-fx="infographics">
+  <div class="fx__stage">
+    <div class="fx__cap fx__cap--top">
+      <div class="fx__n">25 · SVG</div>
+      <h2>Живая инфографика</h2>
+      <p>Графики рисуются, цифры досчитываются, когда блок появляется на экране. Для результатов: фитнес, ремонт, финансы.</p>
+      <div class="tags"><span>цифры</span><span>нагрузка лёгкая</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="how">
+  <h2>Как поставить на сайт</h2>
+  <div><h3>Один файл — один эффект</h3><p>Каждый эффект лежит в <code>fx/имя.js</code>. На сайт кладём его вместе с <code>core.js</code> и строкой подключения библиотеки из этой страницы.</p></div>
+  <div><h3>Запуск</h3><p>Секция с атрибутом <code>data-fx</code> и блоком <code>.fx__stage</code> внутри. Скрипт <code>lab.js</code> сам подгрузит эффект, когда секция подойдёт к экрану, и остановит, когда уйдёт.</p></div>
+  <div><h3>Своё фото и цвета</h3><p>Фото, слово для частиц и цвета задаются атрибутами секции: <code>data-photo</code>, <code>data-word</code>, <code>data-tip</code>. Код эффекта не трогаем.</p></div>
+  <div><h3>Бережно к людям</h3><p>Если в системе включено «уменьшить движение», эффект стоит на месте. На телефоне тяжёлые эффекты облегчаются сами.</p></div>
+</section>
+
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+// Общее для эффектов полки: цикл кадров, размер, указатель, стили, шум. Без Three.js: лёгкие эффекты
+// (CSS, 2D-холст) берут только этот файл и 3D-библиотеку не грузят. WebGL-часть — в gl.js.
+// Каждый эффект — модуль с mount(stage) → { start, stop, setProgress?, destroy }.
+const IS_MOBILE = matchMedia('(max-width: 760px), (pointer: coarse)').matches;
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Цикл кадров. При «уменьшить движение» время стоит — кадр рисуется, но не двигается сам */
+function loop(draw) {
+  let raf = 0, last = 0, t = 0, running = false;
+  const frame = (now) => {
+    const dt = Math.min(0.05, (now - last) / 1000 || 0);
+    last = now;
+    if (!REDUCED) t += dt;
+    draw(t, dt);
+    if (running) raf = requestAnimationFrame(frame);
+  };
+  return {
+    start() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); },
+    stop() { running = false; cancelAnimationFrame(raf); },
+    once() { draw(t, 0); },
+    get time() { return t; },
+  };
+}
+
+/** Следить за размером сцены */
+function watchSize(stage, cb) {
+  const ro = new ResizeObserver(() => cb(Math.max(1, stage.clientWidth), Math.max(1, stage.clientHeight)));
+  ro.observe(stage);
+  cb(Math.max(1, stage.clientWidth), Math.max(1, stage.clientHeight));
+  return () => ro.disconnect();
+}
+
+/** Указатель над сценой: x, y от −1 до 1 (y вверх), u, v от 0 до 1; active — пока внутри.
+ *  Один на сцену: эффект, выгруженный и загруженный заново, не навешивает слушателей второй раз */
+function pointer(stage) {
+  if (stage.__ptr) return stage.__ptr;
+  const p = { x: 0, y: 0, u: 0.5, v: 0.5, active: false, moved: 0 };
+  stage.__ptr = p;
+  const set = (e) => {
+    const r = stage.getBoundingClientRect();
+    p.u = (e.clientX - r.left) / r.width;
+    p.v = 1 - (e.clientY - r.top) / r.height;
+    p.x = p.u * 2 - 1;
+    p.y = p.v * 2 - 1;
+    p.active = true;
+    p.moved = performance.now();
+  };
+  const host = stage.closest('.fx') || stage;
+  host.addEventListener('pointermove', set, { passive: true });
+  host.addEventListener('pointerdown', set, { passive: true });
+  host.addEventListener('pointerleave', () => { p.active = false; });
+  return p;
+}
+
+/** Мягкое приближение к цели: одинаково на любой частоте кадров */
+const damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
+
+/** Стили эффекта кладутся самим эффектом — один раз на страницу: файл эффекта переносится на сайт целиком */
+function css(id, text) {
+  if (document.querySelector('style[data-fx-css="' + id + '"]')) return;
+  const s = document.createElement('style');
+  s.dataset.fxCss = id;
+  s.textContent = text;
+  document.head.appendChild(s);
+}
+
+// Симплекс-шум 3D (Ian McEwan, Ashima Arts, лицензия MIT) — ветер, жидкость, металл
+const NOISE = /* glsl */`
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 mod289(vec4 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec4 permute(vec4 x){return mod289(((x*34.0)+1.0)*x);}
+vec4 taylorInvSqrt(vec4 r){return 1.79284291400159-0.85373472095314*r;}
+float snoise(vec3 v){
+  const vec2 C=vec2(1.0/6.0,1.0/3.0); const vec4 D=vec4(0.0,0.5,1.0,2.0);
+  vec3 i=floor(v+dot(v,C.yyy)); vec3 x0=v-i+dot(i,C.xxx);
+  vec3 g=step(x0.yzx,x0.xyz); vec3 l=1.0-g; vec3 i1=min(g.xyz,l.zxy); vec3 i2=max(g.xyz,l.zxy);
+  vec3 x1=x0-i1+C.xxx; vec3 x2=x0-i2+C.yyy; vec3 x3=x0-D.yyy;
+  i=mod289(i);
+  vec4 p=permute(permute(permute(i.z+vec4(0.0,i1.z,i2.z,1.0))+i.y+vec4(0.0,i1.y,i2.y,1.0))+i.x+vec4(0.0,i1.x,i2.x,1.0));
+  float n_=0.142857142857; vec3 ns=n_*D.wyz-D.xzx;
+  vec4 j=p-49.0*floor(p*ns.z*ns.z); vec4 x_=floor(j*ns.z); vec4 y_=floor(j-7.0*x_);
+  vec4 x=x_*ns.x+ns.yyyy; vec4 y=y_*ns.x+ns.yyyy; vec4 h=1.0-abs(x)-abs(y);
+  vec4 b0=vec4(x.xy,y.xy); vec4 b1=vec4(x.zw,y.zw);
+  vec4 s0=floor(b0)*2.0+1.0; vec4 s1=floor(b1)*2.0+1.0; vec4 sh=-step(h,vec4(0.0));
+  vec4 a0=b0.xzyw+s0.xzyw*sh.xxyy; vec4 a1=b1.xzyw+s1.xzyw*sh.zzww;
+  vec3 p0=vec3(a0.xy,h.x); vec3 p1=vec3(a0.zw,h.y); vec3 p2=vec3(a1.xy,h.z); vec3 p3=vec3(a1.zw,h.w);
+  vec4 norm=taylorInvSqrt(vec4(dot(p0,p0),dot(p1,p1),dot(p2,p2),dot(p3,p3)));
+  p0*=norm.x; p1*=norm.y; p2*=norm.z; p3*=norm.w;
+  vec4 m=max(0.6-vec4(dot(x0,x0),dot(x1,x1),dot(x2,x2),dot(x3,x3)),0.0); m=m*m;
+  return 42.0*dot(m*m,vec4(dot(p0,x0),dot(p1,x1),dot(p2,x2),dot(p3,x3)));
+}`;
+
+const unsplash = (id, w = 1600) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
+
+// WebGL-часть общего кода: холст Three.js, загрузка фото как текстуры, освобождение холста.
+// Нужна только эффектам на Three.js; лёгкие (CSS, 2D-холст) обходятся core.js и библиотеку не тянут.
+
+
+
+/** WebGL-холст на всю сцену. Плотность пикселей ограничена: на телефоне 1.5, иначе 2 */
+function makeRenderer(stage, { alpha = false, antialias = true } = {}) {
+  const renderer = new THREE.WebGLRenderer({ antialias, alpha, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, IS_MOBILE ? 1.5 : 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const c = renderer.domElement;
+  c.className = 'fx__gl';
+  stage.prepend(c);
+  return renderer;
+}
+
+/** Отпустить WebGL сразу: браузер держит около 16 живых контекстов и молча гасит старые */
+function release(renderer) {
+  renderer.dispose();
+  renderer.forceContextLoss();
+  renderer.domElement.remove();
+}
+
+/** Загрузка фото как текстуры (Unsplash отдаёт картинки с CORS) */
+function texture(url, onLoad) {
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+  const tex = loader.load(url, (t) => onLoad && onLoad(t));
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+const FX = {};
+FX["grass"] = (() => {
+// «Живое поле» — тысячи травинок колышутся от ветра и расступаются под курсором.
+// Одна травинка — узкий треугольник; все рисуются одним вызовом (instancing), ветер и курсор — в шейдере.
+
+
+
+
+function mount(stage, opts = {}) {
+  const COUNT = IS_MOBILE ? 26000 : 90000;
+  const W = 11, D = 10;                       // размер поля
+  const root = new THREE.Color(opts.root || '#0d1206');
+  const tip = new THREE.Color(opts.tip || '#e3f36a');
+  const haze = new THREE.Color(opts.haze || '#2c3614'); // дымка у горизонта — в неё уходит дальняя трава
+
+  // небо — градиентом за прозрачным холстом: свечение над горизонтом того же цвета, что дымка
+  stage.style.background = opts.sky ||
+    'radial-gradient(130% 60% at 50% 34%, #2c3614 0%, #151b0b 42%, #07080a 78%)';
+  const renderer = makeRenderer(stage, { alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(44, 1, 0.1, 40);
+  camera.position.set(0, 1.05, 4.6);
+
+  // травинка: 5 уровней по высоте, к верху сужается
+  const blade = new THREE.PlaneGeometry(0.045, 1, 1, 5);
+  const pos = blade.attributes.position;
+  for (let i = 0; i < pos.count; i++) {
+    const y = pos.getY(i) + 0.5;               // 0..1
+    pos.setY(i, y);
+    pos.setX(i, pos.getX(i) * (1 - y * 0.92));
+  }
+  const geo = new THREE.InstancedBufferGeometry();
+  geo.index = blade.index;
+  geo.attributes.position = blade.attributes.position;
+  geo.attributes.uv = blade.attributes.uv;
+
+  const off = new Float32Array(COUNT * 3), sc = new Float32Array(COUNT), ang = new Float32Array(COUNT), hue = new Float32Array(COUNT);
+  for (let i = 0; i < COUNT; i++) {
+    off[i * 3] = (Math.random() - 0.5) * W;
+    off[i * 3 + 1] = 0;
+    off[i * 3 + 2] = (Math.random() - 0.5) * D - 2.0;
+    sc[i] = 0.35 + Math.pow(Math.random(), 1.6) * 0.55;
+    ang[i] = Math.random() * Math.PI;
+    hue[i] = Math.random();
+  }
+  geo.setAttribute('aOffset', new THREE.InstancedBufferAttribute(off, 3));
+  geo.setAttribute('aScale', new THREE.InstancedBufferAttribute(sc, 1));
+  geo.setAttribute('aAngle', new THREE.InstancedBufferAttribute(ang, 1));
+  geo.setAttribute('aHue', new THREE.InstancedBufferAttribute(hue, 1));
+  geo.instanceCount = COUNT;
+
+  const uniforms = {
+    uTime: { value: 0 }, uMouse: { value: new THREE.Vector3(0, 0, 99) }, uPush: { value: 0 },
+    uRoot: { value: root }, uTip: { value: tip }, uHaze: { value: haze },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms, side: THREE.DoubleSide,
+    vertexShader: /* glsl */`
+      ${NOISE}
+      attribute vec3 aOffset; attribute float aScale; attribute float aAngle; attribute float aHue;
+      uniform float uTime; uniform vec3 uMouse; uniform float uPush;
+      varying float vH; varying float vHue; varying float vFog; varying float vLit;
+      void main(){
+        vec3 p = position;
+        float h = p.y;
+        p.y *= aScale;
+        float c = cos(aAngle), s = sin(aAngle);
+        p.xz = mat2(c, -s, s, c) * p.xz;
+        vec3 w = p + aOffset;
+        float bend = h * h;
+        float gust = snoise(vec3(aOffset.x * 0.28 - uTime * 0.35, aOffset.z * 0.28, uTime * 0.08));
+        float sway = snoise(vec3(aOffset.z * 0.9, uTime * 0.6, aOffset.x * 0.9));
+        w.x += (gust * 0.42 + sway * 0.06) * bend * aScale;
+        w.z += gust * 0.12 * bend * aScale;
+        vec2 d = w.xz - uMouse.xz;
+        float near = smoothstep(1.1, 0.0, length(d)) * uPush;
+        w.xz += normalize(d + 1e-4) * near * 0.6 * bend * aScale;
+        w.y -= near * 0.35 * bend * aScale;
+        vH = h; vHue = aHue; vLit = 0.55 + 0.45 * gust;
+        vec4 mv = modelViewMatrix * vec4(w, 1.0);
+        vFog = pow(smoothstep(2.2, 10.5, -mv.z), 0.8);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */`
+      uniform vec3 uRoot; uniform vec3 uTip; uniform vec3 uHaze;
+      varying float vH; varying float vHue; varying float vFog; varying float vLit;
+      void main(){
+        vec3 tip = mix(uTip, uTip * vec3(0.62, 0.86, 0.42), vHue);   // соседние травинки разного оттенка
+        vec3 col = mix(uRoot, tip, pow(vH, 1.6));
+        col *= 0.22 + 0.78 * smoothstep(0.05, 0.6, vH);         // глубокая тень у корней
+        col *= 0.8 + 0.35 * vLit;                                // порыв ветра светлее
+        col += tip * pow(vH, 7.0) * 0.3;                         // блик на кончиках
+        col = mix(col, uHaze, vFog);
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const field = new THREE.Mesh(geo, mat);
+  field.frustumCulled = false;
+  scene.add(field);
+
+  const ptr = pointer(stage);
+  const ray = new THREE.Raycaster(), ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+  const look = new THREE.Vector3(0, 0.12, -0.6);
+  let camX = 0, camY = 1.05;
+
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w / h < 0.8 ? 58 : 42;        // на узком экране — шире угол
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    uniforms.uTime.value = t;
+    // без курсора (телефон, скриншот) по полю сам ходит «ветерок»-ладонь
+    const idle = !ptr.active || performance.now() - ptr.moved > 2500;
+    const tx = idle ? Math.sin(t * 0.35) * 0.55 : ptr.x;
+    const ty = idle ? -0.35 + Math.sin(t * 0.21) * 0.15 : ptr.y;
+    ray.setFromCamera({ x: tx, y: ty }, camera);
+    if (ray.ray.intersectPlane(ground, hit)) uniforms.uMouse.value.lerp(hit, 1 - Math.exp(-10 * dt));
+    uniforms.uPush.value = damp(uniforms.uPush.value, 1, 3, dt);
+    camX = damp(camX, (ptr.active ? ptr.x : 0) * 0.35, 2, dt);
+    camY = damp(camY, 1.05 + (ptr.active ? ptr.y : 0) * 0.12, 2, dt);
+    camera.position.x = camX;
+    camera.position.y = camY;
+    camera.lookAt(look);
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); geo.dispose(); mat.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["liquid-photo"] = (() => {
+// «Живое фото» — фотография течёт за курсором, как вода.
+// Курсор оставляет след в маленькой «карте течения» (два буфера по очереди), фото сдвигается по этой карте.
+
+
+
+
+const QUAD_VS = /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+
+function mount(stage, opts = {}) {
+  const url = opts.photo || unsplash('photo-1517931465348-90458682a9a6', 2000);
+  const renderer = makeRenderer(stage, { antialias: false });
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const quad = new THREE.PlaneGeometry(2, 2);
+
+  // карта течения: xy — направление, z — сила следа
+  const SIZE = 128;
+  const rtOpts = { type: THREE.HalfFloatType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
+  let rtA = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts);
+  let rtB = new THREE.WebGLRenderTarget(SIZE, SIZE, rtOpts);
+  const flowMat = new THREE.ShaderMaterial({
+    uniforms: {
+      tMap: { value: rtA.texture }, uMouse: { value: new THREE.Vector2(-1, -1) }, uVel: { value: new THREE.Vector2() },
+      uAspect: { value: 1 }, uFalloff: { value: 0.22 }, uAlpha: { value: 1 }, uFade: { value: 0.965 },
+    },
+    vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tMap; uniform vec2 uMouse; uniform vec2 uVel; uniform float uAspect, uFalloff, uAlpha, uFade;
+      varying vec2 vUv;
+      void main(){
+        vec4 c = texture2D(tMap, vUv) * uFade;
+        vec2 d = vUv - uMouse; d.x *= uAspect;
+        vec3 stamp = vec3(uVel, 1.0 - pow(1.0 - min(1.0, length(uVel)), 3.0));
+        float f = smoothstep(uFalloff, 0.0, length(d)) * uAlpha;
+        c.rgb = mix(c.rgb, stamp, vec3(f));
+        gl_FragColor = c;
+      }`,
+  });
+  const flowScene = new THREE.Scene();
+  flowScene.add(new THREE.Mesh(quad, flowMat));
+
+  const img = texture(url, (t) => { imgAspect = t.image.width / t.image.height; fit(); });
+  let imgAspect = 1.5, W = 1, H = 1;
+  const showMat = new THREE.ShaderMaterial({
+    uniforms: { tImage: { value: img }, tFlow: { value: rtB.texture }, uCover: { value: new THREE.Vector2(1, 1) }, uTime: { value: 0 } },
+    vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tImage; uniform sampler2D tFlow; uniform vec2 uCover; uniform float uTime;
+      varying vec2 vUv;
+      void main(){
+        vec3 flow = texture2D(tFlow, vUv).rgb;
+        float zoom = 1.0 - 0.025 * (0.5 + 0.5 * sin(uTime * 0.25));      // фото медленно «дышит»
+        vec2 uv = (vUv - 0.5) * uCover * zoom + 0.5;
+        vec2 off = flow.xy * flow.z * 0.12;
+        vec3 col;
+        col.r = texture2D(tImage, uv - off * 1.25).r;                    // края расходятся на цвета
+        col.g = texture2D(tImage, uv - off).g;
+        col.b = texture2D(tImage, uv - off * 0.75).b;
+        col *= 1.0 + flow.z * 0.12;                                      // след чуть светлее
+        float vig = smoothstep(1.25, 0.35, length(vUv - 0.5) * 1.6);
+        gl_FragColor = vec4(col * mix(0.55, 1.0, vig), 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const showScene = new THREE.Scene();
+  showScene.add(new THREE.Mesh(quad, showMat));
+
+  function fit() {
+    const a = W / H;
+    showMat.uniforms.uCover.value.set(a > imgAspect ? 1 : a / imgAspect, a > imgAspect ? imgAspect / a : 1);
+    flowMat.uniforms.uAspect.value = a;
+  }
+  const unwatch = watchSize(stage, (w, h) => { W = w; H = h; renderer.setSize(w, h, false); fit(); });
+
+  const ptr = pointer(stage);
+  const last = new THREE.Vector2(0.5, 0.5), vel = new THREE.Vector2();
+  let idleT = 0;
+  const lp = loop((t, dt) => {
+    showMat.uniforms.uTime.value = t;
+    // без курсора след рисует мягкая «ладонь» по восьмёрке
+    const idle = !ptr.active || performance.now() - ptr.moved > 1800;
+    if (idle) idleT += dt;
+    const u = idle ? 0.5 + Math.sin(idleT * 1.1) * 0.32 : ptr.u;
+    const v = idle ? 0.5 + Math.sin(idleT * 2.2) * 0.2 : ptr.v;
+    if (dt > 0) {
+      const k = idle ? 0.55 : 0.12;               // медленной «ладони» — усиление, чтобы след был виден
+      const vx = (u - last.x) / dt * k, vy = (v - last.y) / dt * k;
+      vel.set(damp(vel.x, vx, 12, dt), damp(vel.y, vy, 12, dt));
+    }
+    last.set(u, v);
+    flowMat.uniforms.uMouse.value.set(u, v);
+    flowMat.uniforms.uVel.value.copy(vel).clampLength(0, 1);
+    flowMat.uniforms.tMap.value = rtA.texture;
+    renderer.setRenderTarget(rtB);
+    renderer.render(flowScene, cam);
+    renderer.setRenderTarget(null);
+    showMat.uniforms.tFlow.value = rtB.texture;
+    renderer.render(showScene, cam);
+    [rtA, rtB] = [rtB, rtA];
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); rtA.dispose(); rtB.dispose(); img.dispose(); flowMat.dispose(); showMat.dispose();
+      release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["product"] = (() => {
+// «Предмет на прокрутке» — стеклянный флакон поворачивается и едет по экрану, пока листаете.
+// Подписи .beat[data-at] внутри сцены включаются каждая в свой момент прокрутки.
+
+
+
+
+
+
+function mount(stage, opts = {}) {
+  const renderer = makeRenderer(stage);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 50);
+  camera.position.set(0, 0.15, 6);
+
+  // фон — непрозрачный: стекло преломляет именно его
+  const bgGeo = new THREE.PlaneGeometry(30, 18, 1, 1);
+  const bgMat = new THREE.ShaderMaterial({
+    uniforms: { uA: { value: new THREE.Color(opts.bgTop || '#241830') }, uB: { value: new THREE.Color(opts.bgBottom || '#0a090d') },
+      uGlow: { value: new THREE.Color(opts.glow || '#c9772c') }, uX: { value: 0 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: /* glsl */`
+      uniform vec3 uA, uB, uGlow; uniform float uX; varying vec2 vUv;
+      float strip(float x, float w){ return smoothstep(w, 0.0, abs(vUv.x - x)) * smoothstep(0.18, 0.4, vUv.y) * smoothstep(0.9, 0.62, vUv.y); }
+      void main(){
+        vec3 c = mix(uB, uA, smoothstep(0.1, 0.95, vUv.y));
+        float cx = 0.5 + uX * 0.035;
+        float g = smoothstep(0.32, 0.0, length((vUv - vec2(cx, 0.5)) * vec2(1.6, 1.0)));
+        c += uGlow * g * 0.45;
+        // две полосы света, как софтбоксы в студии: их и преломляет стекло
+        c += vec3(1.0, 0.93, 0.84) * (strip(cx - 0.045, 0.012) * 0.9 + strip(cx + 0.05, 0.02) * 0.45);
+        gl_FragColor = vec4(c, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const bg = new THREE.Mesh(bgGeo, bgMat);
+  bg.position.z = -6;
+  scene.add(bg);
+
+  const bottle = new THREE.Group();
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0, roughness: 0.02, transmission: 1, thickness: 1.4, ior: 1.52,
+    clearcoat: 1, clearcoatRoughness: 0.02, attenuationColor: new THREE.Color('#eef3f2'), attenuationDistance: 6,
+    specularIntensity: 1,
+  });
+  const body = new THREE.Mesh(new RoundedBoxGeometry(1.2, 1.55, 0.72, 8, 0.12), glass);
+  bottle.add(body);
+
+  // жидкость меньше флакона: снизу толстое прозрачное дно, сверху полоса чистого стекла
+  const liquid = new THREE.Mesh(new RoundedBoxGeometry(0.96, 0.92, 0.5, 6, 0.08), new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(opts.liquid || '#f0a64a'), transmission: 0.85, thickness: 0.5, roughness: 0.08, ior: 1.36,
+    attenuationColor: new THREE.Color(opts.liquid || '#d97a1f'), attenuationDistance: 0.7,
+  }));
+  liquid.position.y = -0.14;
+  bottle.add(liquid);
+
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.2, 0.22, 48), glass);
+  neck.position.y = 0.86;
+  bottle.add(neck);
+
+  const gold = new THREE.MeshPhysicalMaterial({ color: new THREE.Color(opts.cap || '#d9b26a'), metalness: 1, roughness: 0.22, clearcoat: 0.6 });
+  const cap = new THREE.Mesh(new RoundedBoxGeometry(0.62, 0.52, 0.62, 6, 0.08), gold);
+  cap.position.y = 1.22;
+  bottle.add(cap);
+
+  // этикетка — текстом на холсте
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 256;
+  const g = cv.getContext('2d');
+  g.fillStyle = 'rgba(250,246,238,0.93)'; g.fillRect(0, 0, 512, 256);
+  g.fillStyle = '#1b1712'; g.textAlign = 'center';
+  g.font = '700 86px Onest, Arial, sans-serif'; g.fillText(opts.label || 'СТАЛЬ', 256, 132);
+  g.font = '500 30px Onest, Arial, sans-serif'; g.fillText(opts.sub || 'EAU DE PARFUM · 50 ML', 256, 196);
+  const labelTex = new THREE.CanvasTexture(cv);
+  labelTex.colorSpace = THREE.SRGBColorSpace;
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(0.86, 0.43), new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.7 }));
+  label.position.set(0, -0.12, 0.315);
+  bottle.add(label);
+
+  bottle.rotation.x = 0.08;
+  scene.add(bottle);
+
+  const key = new THREE.DirectionalLight(0xffffff, 1.4);
+  key.position.set(3, 4, 5);
+  scene.add(key);
+
+  const beats = [...stage.querySelectorAll('.beat')].map((el) => ({ el, at: parseFloat(el.dataset.at) || 0 }));
+  const ptr = pointer(stage);
+  let target = null, shown = 0, wide = true;
+  // куда едет флакон: от подписи к подписи, в конце — в центр
+  const path = [[0, 0.55], [0.14, 0.95], [0.42, -0.95], [0.7, 0.95], [1, 0]];
+  const xAt = (p) => {
+    for (let i = 1; i < path.length; i++) {
+      if (p <= path[i][0]) {
+        const [p0, x0] = path[i - 1], [p1, x1] = path[i];
+        const k = (p - p0) / (p1 - p0);
+        return x0 + (x1 - x0) * (k * k * (3 - 2 * k));
+      }
+    }
+    return 0;
+  };
+
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    wide = w / h > 1;
+    camera.position.z = wide ? 6 : 8.2;          // на узком экране дальше, чтобы флакон влез
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    shown = damp(shown, target ?? 0, 6, dt || 0.016);
+    const x = wide ? xAt(shown) : 0;
+    bottle.position.x = damp(bottle.position.x, x, 5, dt || 0.016);
+    bottle.position.y = (wide ? 0 : 0.35) + Math.sin(t * 0.9) * 0.04;
+    bottle.rotation.y = -0.45 + shown * Math.PI * 2 + (ptr.active ? ptr.x * 0.25 : 0);
+    bottle.rotation.z = Math.sin(t * 0.7) * 0.02;
+    bgMat.uniforms.uX.value = bottle.position.x;
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) {
+      if (target === null) { shown = p; bottle.position.x = wide ? xAt(p) : 0; }   // страница открыта посреди — сразу на месте
+      target = p;
+      for (const b of beats) b.el.classList.toggle('on', p > b.at - 0.1 && p < b.at + 0.16);
+    },
+    destroy() { lp.stop(); unwatch(); pmrem.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["particles"] = (() => {
+// «Частицы» — облако точек на прокрутке собирается в шар, слово, узел и спираль.
+// Все четыре формы лежат в атрибутах, переход и разлёт от курсора считает шейдер.
+
+
+
+
+const N = IS_MOBILE ? 10000 : 24000;
+
+function sphere(out) {
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = i * 2.399963;
+    const k = 1.55 * (0.94 + Math.random() * 0.12);
+    out.set([Math.cos(th) * r * k, y * k, Math.sin(th) * r * k], i * 3);
+  }
+}
+
+function knot(out) {
+  const g = new THREE.TorusKnotGeometry(1.05, 0.3, 420, 36, 2, 3);
+  const p = g.attributes.position;
+  for (let i = 0; i < N; i++) {
+    const j = Math.floor(Math.random() * p.count);
+    out.set([p.getX(j) + (Math.random() - 0.5) * 0.05, p.getY(j) + (Math.random() - 0.5) * 0.05, p.getZ(j)], i * 3);
+  }
+  g.dispose();
+}
+
+function galaxy(out) {
+  for (let i = 0; i < N; i++) {
+    const arm = i % 3, r = Math.pow(Math.random(), 0.65) * 2.5;
+    const a = r * 2.1 + arm * (Math.PI * 2 / 3) + (Math.random() - 0.5) * 0.5 / (r + 0.3);
+    out.set([Math.cos(a) * r, (Math.random() - 0.5) * 0.18 * (2.6 - r), Math.sin(a) * r], i * 3);
+  }
+}
+
+/** Точки слова: рисуем текст на холсте и берём закрашенные пиксели */
+function word(out, text) {
+  const cv = document.createElement('canvas');
+  cv.width = 1200; cv.height = 360;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#fff';
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  let size = 250;
+  do { g.font = `800 ${size}px Onest, Arial, sans-serif`; size -= 10; } while (g.measureText(text).width > 1120 && size > 60);
+  g.fillText(text, 600, 190);
+  const d = g.getImageData(0, 0, 1200, 360).data, pts = [];
+  for (let y = 0; y < 360; y += 2) for (let x = 0; x < 1200; x += 2) if (d[(y * 1200 + x) * 4 + 3] > 128) pts.push([x, y]);
+  if (!pts.length) return false;
+  for (let i = 0; i < N; i++) {
+    const [x, y] = pts[Math.floor(Math.random() * pts.length)];
+    out.set([(x - 600) / 1200 * 4.6 + (Math.random() - 0.5) * 0.02, -(y - 180) / 1200 * 4.6, (Math.random() - 0.5) * 0.22], i * 3);
+  }
+  return true;
+}
+
+function mount(stage, opts = {}) {
+  const renderer = makeRenderer(stage, { antialias: false });
+  renderer.setClearColor(0x000000, 0);
+  stage.style.background = 'radial-gradient(80% 70% at 50% 50%, #151024 0%, #08070c 70%)';
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
+  camera.position.set(0, 0, 7.2);
+
+  const geo = new THREE.BufferGeometry();
+  const p0 = new Float32Array(N * 3), p1 = new Float32Array(N * 3), p2 = new Float32Array(N * 3), p3 = new Float32Array(N * 3);
+  sphere(p0); sphere(p1); knot(p2); galaxy(p3);
+  const rnd = new Float32Array(N);
+  for (let i = 0; i < N; i++) rnd[i] = Math.random();
+  geo.setAttribute('position', new THREE.BufferAttribute(p0, 3));
+  geo.setAttribute('aP1', new THREE.BufferAttribute(p1, 3));
+  geo.setAttribute('aP2', new THREE.BufferAttribute(p2, 3));
+  geo.setAttribute('aP3', new THREE.BufferAttribute(p3, 3));
+  geo.setAttribute('aRand', new THREE.BufferAttribute(rnd, 1));
+  // слово — когда загрузится шрифт (иначе на холсте будет запасной)
+  const text = opts.word || 'СТАЛЬ';
+  (document.fonts ? document.fonts.load('800 200px Onest').then(() => document.fonts.ready) : Promise.resolve())
+    .then(() => { if (word(p1, text)) geo.attributes.aP1.needsUpdate = true; });
+
+  const uniforms = {
+    uTime: { value: 0 }, uP: { value: 0 }, uMouse: { value: new THREE.Vector3(99, 99, 0) },
+    uSize: { value: IS_MOBILE ? 2.2 : 2.0 }, uPR: { value: renderer.getPixelRatio() },
+    uA: { value: new THREE.Color(opts.c1 || '#a78bfa') }, uB: { value: new THREE.Color(opts.c2 || '#f472b6') }, uC: { value: new THREE.Color(opts.c3 || '#7dd3fc') },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: /* glsl */`
+      ${NOISE}
+      attribute vec3 aP1; attribute vec3 aP2; attribute vec3 aP3; attribute float aRand;
+      uniform float uTime, uP, uSize, uPR; uniform vec3 uMouse;
+      varying float vR; varying float vGlow;
+      void main(){
+        float seg = min(floor(uP), 2.0);
+        float k = clamp((uP - seg) * 1.45 - aRand * 0.45, 0.0, 1.0);
+        k = k * k * (3.0 - 2.0 * k);
+        vec3 a = position, b = aP1;
+        if (seg > 0.5 && seg < 1.5) { a = aP1; b = aP2; }
+        if (seg > 1.5) { a = aP2; b = aP3; }
+        vec3 p = mix(a, b, k);
+        float swirl = sin(k * 3.14159);
+        p += vec3(snoise(p * 0.8 + uTime * 0.3), snoise(p * 0.8 + 11.0 + uTime * 0.3), snoise(p * 0.8 + 23.0)) * (0.04 + swirl * 0.38);
+        vec4 w = modelMatrix * vec4(p, 1.0);
+        vec2 d = w.xy - uMouse.xy;
+        float f = smoothstep(1.3, 0.0, length(d));
+        w.xy += normalize(d + 1e-4) * f * 0.75;
+        w.z += f * 0.6;
+        vec4 mv = viewMatrix * w;
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = uSize * (0.6 + aRand) * uPR * (7.0 / -mv.z);
+        vR = aRand; vGlow = f;
+      }`,
+    fragmentShader: /* glsl */`
+      uniform vec3 uA, uB, uC; varying float vR; varying float vGlow;
+      void main(){
+        float d = length(gl_PointCoord - 0.5);
+        float a = smoothstep(0.5, 0.0, d);
+        vec3 col = mix(uA, uB, smoothstep(0.2, 0.8, vR));
+        col = mix(col, uC, smoothstep(0.75, 1.0, vR));
+        col += vGlow * 0.6;
+        gl_FragColor = vec4(col * a, a * 0.85);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const cloud = new THREE.Points(geo, mat);
+  cloud.frustumCulled = false;
+  scene.add(cloud);
+
+  const ptr = pointer(stage);
+  const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), hit = new THREE.Vector3();
+  let target = null, shown = 0, rotY = 0;
+
+  // прокрутка → номер формы с остановками: каждая форма какое-то время стоит собранной
+  const KEYS = [[0, 0], [0.1, 0], [0.3, 1], [0.44, 1], [0.62, 2], [0.74, 2], [0.92, 3], [1, 3]];
+  const shape = (p) => {
+    for (let i = 1; i < KEYS.length; i++) {
+      if (p <= KEYS[i][0]) {
+        const [a, va] = KEYS[i - 1], [b, vb] = KEYS[i];
+        return va + (vb - va) * ((p - a) / (b - a || 1));
+      }
+    }
+    return 3;
+  };
+
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w / h < 0.8 ? 10.5 : 7.2;
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    uniforms.uTime.value = t;
+    const step = dt || 0.016;
+    shown = damp(shown, target ?? 0, 4, step);
+    const s = shape(shown);
+    uniforms.uP.value = s;
+    // слово разворачивается к зрителю, остальные формы медленно вращаются
+    const facing = s > 0.55 && s < 1.45;
+    if (facing) rotY = damp(rotY, Math.round(rotY / (Math.PI * 2)) * Math.PI * 2, 4, step);
+    else rotY += step * 0.18;
+    cloud.rotation.y = rotY;
+    cloud.rotation.x = damp(cloud.rotation.x, facing ? 0 : (s > 2.5 ? 0.55 : 0.18) + Math.sin(t * 0.2) * 0.08, 3, step);
+    if (ptr.active) {
+      ray.setFromCamera({ x: ptr.x, y: ptr.y }, camera);
+      if (ray.ray.intersectPlane(plane, hit)) uniforms.uMouse.value.lerp(hit, 1 - Math.exp(-12 * (dt || 0.016)));
+    } else uniforms.uMouse.value.set(99, 99, 0);
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) { if (target === null) shown = p; target = p; },   // открыли посреди — сразу нужная форма
+    destroy() { lp.stop(); unwatch(); geo.dispose(); mat.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["glass"] = (() => {
+// «Стекло и свет» — стеклянные формы плывут над живым цветным фоном и преломляют его.
+
+
+
+
+
+
+function mount(stage, opts = {}) {
+  const renderer = makeRenderer(stage);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  const scene = new THREE.Scene();
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 60);
+  camera.position.set(0, 0, 9);
+
+  // фон — переливающиеся пятна цвета; непрозрачный, чтобы стеклу было что преломлять
+  const bgMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 },
+      uC1: { value: new THREE.Color(opts.c1 || '#6d4ce0') }, uC2: { value: new THREE.Color(opts.c2 || '#ef5da8') },
+      uC3: { value: new THREE.Color(opts.c3 || '#38bdf8') }, uC4: { value: new THREE.Color(opts.c4 || '#f7b267') },
+      uBase: { value: new THREE.Color(opts.base || '#0b0a12') },
+    },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: /* glsl */`
+      uniform float uTime; uniform vec3 uC1, uC2, uC3, uC4, uBase; varying vec2 vUv;
+      float blob(vec2 c, float r){ return smoothstep(r, 0.0, length(vUv - c)); }
+      void main(){
+        float t = uTime * 0.12;
+        vec3 col = uBase;
+        col += uC1 * blob(vec2(0.3 + 0.12 * sin(t * 1.3), 0.62 + 0.1 * cos(t)), 0.42) * 0.9;
+        col += uC2 * blob(vec2(0.68 + 0.1 * cos(t * 0.9), 0.38 + 0.12 * sin(t * 1.1)), 0.38) * 0.85;
+        col += uC3 * blob(vec2(0.55 + 0.16 * sin(t * 0.7), 0.72 + 0.08 * sin(t * 1.7)), 0.3) * 0.7;
+        col += uC4 * blob(vec2(0.22 + 0.1 * cos(t * 1.5), 0.24 + 0.1 * sin(t * 0.8)), 0.26) * 0.55;
+        // тонкая сетка линий — стекло её заметно искривляет
+        float gx = smoothstep(0.012, 0.0, abs(fract(vUv.x * 18.0) - 0.5) - 0.48);
+        float gy = smoothstep(0.012, 0.0, abs(fract(vUv.y * 11.0) - 0.5) - 0.48);
+        col += vec3(1.0) * max(gx, gy) * 0.035;
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const bg = new THREE.Mesh(new THREE.PlaneGeometry(40, 24), bgMat);
+  bg.position.z = -8;
+  scene.add(bg);
+
+  const glass = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, roughness: 0.05, metalness: 0, transmission: 1, thickness: 1.2, ior: 1.45,
+    dispersion: 4, iridescence: 0.35, iridescenceIOR: 1.3, clearcoat: 1, clearcoatRoughness: 0.05,
+  });
+  const shapes = [
+    [new THREE.TorusGeometry(0.95, 0.36, 64, 180), [-2.4, 0.9, 0], 1],
+    [new THREE.IcosahedronGeometry(0.85, 16), [2.2, -0.6, 0.6], 1],
+    [new RoundedBoxGeometry(1.25, 1.25, 1.25, 8, 0.28), [0.2, 1.6, -1.2], 0.9],
+    [new THREE.CapsuleGeometry(0.38, 1.0, 16, 48), [-0.6, -1.5, 0.8], 1],
+    [new THREE.TorusKnotGeometry(0.55, 0.18, 240, 40), [3.3, 1.8, -1.8], 0.9],
+  ].slice(0, IS_MOBILE ? 3 : 5).map(([geo, pos, s], i) => {
+    const m = new THREE.Mesh(geo, glass);
+    m.position.set(...pos);
+    m.scale.setScalar(s);
+    m.userData = { home: new THREE.Vector3(...pos), phase: i * 1.7, spin: 0.15 + i * 0.05 };
+    scene.add(m);
+    return m;
+  });
+
+  const ptr = pointer(stage);
+  let rx = 0, ry = 0;
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w / h < 0.8 ? 14 : 9;
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    bgMat.uniforms.uTime.value = t;
+    rx = damp(rx, ptr.active ? ptr.y * 0.25 : 0, 2, dt || 0.016);
+    ry = damp(ry, ptr.active ? ptr.x * 0.35 : 0, 2, dt || 0.016);
+    for (const m of shapes) {
+      const u = m.userData;
+      m.position.x = u.home.x + Math.sin(t * 0.4 + u.phase) * 0.18 + ry * (1 + u.home.z * 0.3);
+      m.position.y = u.home.y + Math.cos(t * 0.5 + u.phase) * 0.22 + rx * (1 + u.home.z * 0.3);
+      m.rotation.x = t * u.spin + u.phase;
+      m.rotation.y = t * u.spin * 1.3;
+    }
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); pmrem.dispose(); glass.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["cylinder"] = (() => {
+// «Цилиндр работ» — фото по кругу в 3D (CSS, без WebGL: картинки остаются резкими).
+// Прокрутка поворачивает цилиндр, мышью или пальцем его можно раскрутить; передний кадр светлее и крупнее.
+
+
+const BARBER = [
+  ['photo-1630827020718-3433092696e7', 'Укладка и борода'], ['photo-1599011176306-4a96f1516d4d', 'Борода ножницами'],
+  ['photo-1648221122323-572c13a31663', 'Плавный переход'], ['photo-1657105052497-f996284ffff8', 'Текстурный верх'],
+  ['photo-1704072650662-76df3af134a7', 'Детская стрижка'], ['photo-1640301133543-41fe25ad6450', 'Короткая стрижка'],
+  ['photo-1568339434343-2a640a1a9946', 'Фейд с узором'], ['photo-1503951914875-452162b0f3f1', 'Машинка'],
+  ['photo-1493256338651-d82f7acb2b38', 'Ножницы'], ['photo-1596728325488-58c87691e9af', 'Бритьё'],
+  ['photo-1599351431202-1e0f0137899a', 'Королевское бритьё'], ['photo-1585747860715-2ba37e788b70', 'Зал'],
+];
+
+function mount(stage, opts = {}) {
+  const items = BARBER;
+  const N = items.length;
+  const wrap = document.createElement('div');
+  wrap.className = 'cyl';
+  wrap.innerHTML = '<div class="cyl__floor"></div><div class="cyl__ring"></div>';
+  stage.appendChild(wrap);
+  stage.classList.add('no-shade');
+  const ring = wrap.querySelector('.cyl__ring');
+  const cards = items.map(([id, cap]) => {
+    const f = document.createElement('figure');
+    f.className = 'cyl__card';
+    f.innerHTML = `<img src="${unsplash(id, 520)}" alt="${cap}" loading="lazy" decoding="async"><figcaption>${cap}</figcaption>`;
+    ring.appendChild(f);
+    return f;
+  });
+
+  let W = 240, R = 600, target = null, shown = 0, drag = 0, vel = 0, down = null;
+  const unwatch = watchSize(stage, (w, h) => {
+    W = Math.round(Math.min(250, Math.max(150, w * 0.2)));
+    const H = Math.round(W * 1.32);
+    R = Math.round((W + 26) / (2 * Math.tan(Math.PI / N)));
+    wrap.style.setProperty('--w', W + 'px');
+    wrap.style.setProperty('--h', H + 'px');
+    wrap.style.setProperty('--p', Math.round(Math.max(900, R * 2.6)) + 'px');
+    wrap.style.setProperty('--y', (h < 700 ? 8 : 4) + 'vh');
+  });
+
+  // мышь и палец: тянем — крутится, отпустили — докручивается по инерции
+  const onDown = (e) => { down = { x: e.clientX, d: drag }; vel = 0; stage.setPointerCapture && stage.setPointerCapture(e.pointerId); };
+  const onMove = (e) => {
+    if (!down) return;
+    const nd = down.d + (e.clientX - down.x) * 0.25;
+    vel = nd - drag;
+    drag = nd;
+  };
+  const onUp = () => { down = null; };
+  stage.addEventListener('pointerdown', onDown);
+  stage.addEventListener('pointermove', onMove);
+  stage.addEventListener('pointerup', onUp);
+  stage.addEventListener('pointercancel', onUp);
+  stage.style.touchAction = 'pan-y';
+
+  const step = 360 / N;
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    shown = damp(shown, target ?? 0, 5, k);
+    if (!down) { drag += vel; vel *= Math.pow(0.9, k * 60); }
+    const angle = -shown * 330 + drag + t * 2;          // градусов
+    ring.style.transform = `translateZ(${-R}px) rotateX(-6deg) rotateY(${angle}deg)`;
+    for (let i = 0; i < N; i++) {
+      const a = ((i * step + angle) % 360 + 540) % 360 - 180;      // −180…180, 0 — прямо на нас
+      const face = Math.cos(a * Math.PI / 180);
+      const c = cards[i];
+      c.style.transform = `rotateY(${i * step}deg) translateZ(${R}px) scale(${1 + Math.max(0, face - 0.85) * 0.5})`;
+      c.style.filter = `brightness(${(0.28 + 0.72 * Math.max(0, face)).toFixed(3)})`;
+      c.classList.toggle('front', Math.abs(a) < step / 2);
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) { if (target === null) shown = p; target = p; },
+    destroy() {
+      lp.stop(); unwatch(); wrap.remove();
+      stage.removeEventListener('pointerdown', onDown);
+      stage.removeEventListener('pointermove', onMove);
+      stage.removeEventListener('pointerup', onUp);
+      stage.removeEventListener('pointercancel', onUp);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["tunnel"] = (() => {
+// «Туннель» — камера летит сквозь коридор из рамок и фотографий; прокрутка ведёт её вперёд.
+// Подписи .beat[data-at] внутри сцены включаются, когда камера у своего кадра.
+
+
+
+
+const VERANDA = [
+  'photo-1774002441737-de08d3639191', 'photo-1714919286244-6f3f6cce6e65', 'photo-1721738860451-2a0533cec21a',
+  'photo-1600494448655-ae58f58bb945', 'photo-1665249934445-1de680641f50', 'photo-1781249144562-e15ab4c9f63c',
+  'photo-1774716925801-cad665240e12', 'photo-1689717887631-088197cdc2ca', 'photo-1577386308421-da4e279fa68a',
+  'photo-1678027973817-f97d53e98914',
+];
+
+function mount(stage, opts = {}) {
+  const bg = new THREE.Color(opts.bg || '#08070c');
+  const renderer = makeRenderer(stage);
+  renderer.setClearColor(bg, 1);
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(bg, 3, 22);
+  const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 60);
+
+  const GAP = 4.2, N = VERANDA.length, LEN = N * GAP + 6;
+  const path = (z) => new THREE.Vector3(Math.sin(z * 0.09) * 1.1, Math.cos(z * 0.07) * 0.45, z);
+
+  // рамки коридора — каждые 1.4 единицы
+  const frameGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-3, -1.9, 0), new THREE.Vector3(3, -1.9, 0), new THREE.Vector3(3, 1.9, 0),
+    new THREE.Vector3(-3, 1.9, 0), new THREE.Vector3(-3, -1.9, 0),
+  ]);
+  const frameMat = new THREE.LineBasicMaterial({ color: new THREE.Color(opts.line || '#a78bfa'), transparent: true, opacity: 0.45 });
+  for (let z = 0; z > -LEN; z -= 1.4) {
+    const f = new THREE.Line(frameGeo, frameMat);
+    f.position.copy(path(z));
+    f.rotation.z = z * 0.02;
+    scene.add(f);
+  }
+
+  // фотографии по сторонам коридора
+  const photoGeo = new THREE.PlaneGeometry(2.3, 1.55);
+  const photos = VERANDA.map((id, i) => {
+    const z = -3 - i * GAP, side = i % 2 ? 1 : -1;
+    const mat = new THREE.MeshBasicMaterial({ map: texture(unsplash(id, 900)), side: THREE.DoubleSide, toneMapped: false });
+    const m = new THREE.Mesh(photoGeo, mat);
+    const c = path(z);
+    m.position.set(c.x + side * 1.75, c.y + (i % 3 - 1) * 0.35, z);
+    m.rotation.y = -side * 0.55;
+    scene.add(m);
+    return m;
+  });
+
+  // пыль в воздухе — чувство глубины
+  const DUST = IS_MOBILE ? 500 : 1400;
+  const dp = new Float32Array(DUST * 3);
+  for (let i = 0; i < DUST; i++) dp.set([(Math.random() - 0.5) * 7, (Math.random() - 0.5) * 4.4, -Math.random() * LEN], i * 3);
+  const dustGeo = new THREE.BufferGeometry();
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dp, 3));
+  scene.add(new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: 0xd8d0ff, size: 0.025, transparent: true, opacity: 0.6 })));
+
+  const beats = [...stage.querySelectorAll('.beat')].map((el) => ({ el, at: parseFloat(el.dataset.at) || 0 }));
+  const ptr = pointer(stage);
+  let target = null, shown = 0, lx = 0, ly = 0;
+
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w / h < 0.8 ? 78 : 60;
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    shown = damp(shown, target ?? 0, 3.5, k);
+    const z = 2 - shown * (LEN - 4);
+    const c = path(z);
+    lx = damp(lx, ptr.active ? ptr.x * 0.6 : Math.sin(t * 0.3) * 0.2, 2, k);
+    ly = damp(ly, ptr.active ? ptr.y * 0.35 : 0, 2, k);
+    camera.position.set(c.x + lx * 0.4, c.y + ly * 0.3, z);
+    const ahead = path(z - 4);
+    camera.lookAt(ahead.x + lx, ahead.y + ly, ahead.z);
+    camera.rotation.z += Math.sin(t * 0.4) * 0.01;
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) {
+      if (target === null) shown = p;
+      target = p;
+      for (const b of beats) b.el.classList.toggle('on', p > b.at - 0.07 && p < b.at + 0.12);
+    },
+    destroy() {
+      lp.stop(); unwatch(); frameGeo.dispose(); photoGeo.dispose(); dustGeo.dispose();
+      photos.forEach((m) => { m.material.map.dispose(); m.material.dispose(); });
+      release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["exploded"] = (() => {
+// «Разнесённая сборка» — экран раскладывается на слои по мере прокрутки и собирается обратно (CSS 3D).
+
+
+const LAYERS = [
+  ['Фон и свет', '<div class="xp__bg"></div>'],
+  ['Фото', '<div class="xp__photo" style="background-image:url(%PHOTO%)"></div>'],
+  ['Заголовок', '<div class="xp__text"><small>Стоматология · Тбилиси</small><b>Лечим без боли и спешки</b><span>Первый осмотр со снимком — 0 ₾</span></div>'],
+  ['Кнопки и цены', '<div class="xp__ui"><i>Осмотр 0 ₾</i><i>Чистка 150 ₾</i><em>Записаться на приём</em></div>'],
+  ['Блик', '<div class="xp__sheen"></div>'],
+];
+
+function mount(stage, opts = {}) {
+  const photo = opts.photo || unsplash('photo-1616391182219-e080b4d1043a', 900);
+  const wrap = document.createElement('div');
+  wrap.className = 'xp';
+  wrap.innerHTML = '<div class="xp__stack">' + LAYERS.map(([name, html], i) =>
+    `<div class="xp__layer" style="--i:${i}">${html.replace('%PHOTO%', photo)}<span class="xp__tag"><b>${String(i + 1).padStart(2, '0')}</b>${name}</span></div>`
+  ).join('') + '</div>';
+  stage.appendChild(wrap);
+  stage.classList.add('no-shade');
+  const stack = wrap.querySelector('.xp__stack');
+  const layers = [...wrap.querySelectorAll('.xp__layer')];
+
+  const ptr = pointer(stage);
+  let target = null, shown = 0, tx = 0, ty = 0, gap = 90;
+  const unwatch = watchSize(stage, (w, h) => {
+    const s = Math.min(1, h / 820, w / 640);
+    wrap.style.setProperty('--s', s.toFixed(3));
+    gap = w < 700 ? 60 : 90;
+  });
+
+  // раскрытие: 0 → 1 на первой трети, держим, собираем обратно в конце
+  const spread = (p) => {
+    const up = Math.min(1, Math.max(0, (p - 0.06) / 0.3));
+    const down = Math.min(1, Math.max(0, (p - 0.78) / 0.18));
+    const e = (x) => x * x * (3 - 2 * x);
+    return e(up) * (1 - e(down));
+  };
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    shown = damp(shown, target ?? 0, 5, k);
+    const s = spread(shown);
+    tx = damp(tx, ptr.active ? ptr.y * 6 : 0, 3, k);
+    ty = damp(ty, ptr.active ? ptr.x * 8 : 0, 3, k);
+    const ax = s * 52 + tx, az = -s * 34 + Math.sin(t * 0.5) * 1.2;
+    stack.style.transform = `scale(var(--s)) rotateX(${ax.toFixed(2)}deg) rotateZ(${az.toFixed(2)}deg) rotateY(${ty.toFixed(2)}deg)`;
+    // подписи слоёв поворачиваем обратно — они смотрят прямо на зрителя
+    stack.style.setProperty('--ax', ax.toFixed(2));
+    stack.style.setProperty('--az', az.toFixed(2));
+    stack.style.setProperty('--ay', ty.toFixed(2));
+    layers.forEach((l, i) => {
+      l.style.transform = `translateZ(${(i * gap * s).toFixed(1)}px)`;
+      l.style.setProperty('--show', s.toFixed(3));
+    });
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) { if (target === null) shown = p; target = p; },
+    destroy() { lp.stop(); unwatch(); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["holo-card"] = (() => {
+// «Голографическая карта» — подарочный сертификат с радужной фольгой и бликом (CSS 3D, без WebGL).
+// Наклон — за курсором, на телефоне — за наклоном руки; без касания карта сама медленно покачивается.
+
+
+function mount(stage, opts = {}) {
+  const wrap = document.createElement('div');
+  wrap.className = 'holo';
+  wrap.innerHTML = `
+    <div class="holo__card">
+      <div class="holo__base"></div>
+      <div class="holo__foil"></div>
+      <div class="holo__content">
+        <div class="holo__top"><span class="holo__mark"></span><span>${opts.brand || 'СТАЛЬ · барбершоп'}</span></div>
+        <div class="holo__kind">Подарочный сертификат</div>
+        <div class="holo__value">${opts.value || '100 ₾'}</div>
+        <div class="holo__bottom"><span>${opts.what || 'стрижка и борода'}</span><span>№ 0427</span></div>
+      </div>
+      <div class="holo__glare"></div>
+    </div>`;
+  stage.appendChild(wrap);
+  stage.classList.add('no-shade');
+  const card = wrap.querySelector('.holo__card');
+  const ptr = pointer(stage);
+
+  // наклон телефона (Android отдаёт без разрешения; на iPhone остаётся самопокачивание)
+  let tiltX = null, tiltY = null;
+  const onTilt = (e) => { if (e.beta == null) return; tiltX = Math.max(-1, Math.min(1, (e.beta - 40) / 30)); tiltY = Math.max(-1, Math.min(1, e.gamma / 30)); };
+  window.addEventListener('deviceorientation', onTilt);
+
+  let rx = 0, ry = 0, mx = 50, my = 50;
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    let x, y;
+    if (ptr.active) { x = ptr.x; y = ptr.y; }
+    else if (tiltX != null) { x = tiltY; y = -tiltX; }
+    else { x = Math.sin(t * 0.6) * 0.55; y = Math.sin(t * 0.9) * 0.35; }
+    rx = damp(rx, y * 14, 5, k);
+    ry = damp(ry, x * 18, 5, k);
+    mx = damp(mx, 50 + x * 42, 5, k);
+    my = damp(my, 50 - y * 42, 5, k);
+    card.style.transform = `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)`;
+    card.style.setProperty('--mx', mx.toFixed(1) + '%');
+    card.style.setProperty('--my', my.toFixed(1) + '%');
+    card.style.setProperty('--pos', (50 + x * 50).toFixed(1) + '%');
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); window.removeEventListener('deviceorientation', onTilt); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["chrome"] = (() => {
+// «Жидкий металл» — хромовая капля течёт и тянется к курсору; в ней отражаются цветные полосы света.
+// Форма считается в шейдере (шум по сфере), нормали — по соседним точкам, поэтому свет и отражения честные.
+
+
+
+
+/** «Студия» для отражений: тёмная комната и светящиеся полосы нужных цветов */
+function studio(renderer, colors) {
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), new THREE.MeshBasicMaterial({ color: 0x1a1a22, side: THREE.BackSide })));
+  // большой мягкий свет сверху — без него металл выходит почти чёрным
+  const soft = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffffff').multiplyScalar(0.9), side: THREE.DoubleSide }));
+  soft.position.set(0, 7, 3);
+  soft.rotation.x = Math.PI / 2;
+  env.add(soft);
+  const strip = (color, w, h, pos, rot, k = 1) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(k), side: THREE.DoubleSide }));
+    m.position.set(...pos);
+    m.rotation.set(...rot);
+    env.add(m);
+  };
+  strip(colors[0], 10, 1.2, [0, 6, -2], [Math.PI / 2, 0, 0], 3);        // верхний свет
+  strip(colors[1], 1.4, 9, [-7, 0, 1], [0, Math.PI / 2, 0], 2.2);       // слева
+  strip(colors[2], 1.4, 9, [7, 0, -1], [0, -Math.PI / 2, 0], 2.2);      // справа
+  strip(colors[3], 8, 0.6, [0, -3, 7], [0, 0, 0], 1.6);                 // снизу-спереди
+  const pm = new THREE.PMREMGenerator(renderer);
+  const tex = pm.fromScene(env, 0.02).texture;
+  pm.dispose();
+  return tex;
+}
+
+function mount(stage, opts = {}) {
+  const renderer = makeRenderer(stage, { alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  stage.style.background = 'radial-gradient(60% 60% at 50% 45%, #1b1726 0%, #08070b 72%)';
+  const scene = new THREE.Scene();
+  scene.environment = studio(renderer, [opts.l1 || '#ffffff', opts.l2 || '#a78bfa', opts.l3 || '#7dd3fc', opts.l4 || '#f472b6']);
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+  camera.position.set(0, 0, 6.2);
+
+  const geo = new THREE.IcosahedronGeometry(1.25, IS_MOBILE ? 36 : 72);
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: new THREE.Color(opts.metal || '#eceaf2'), metalness: 1, roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.08,
+  });
+  const uni = { uTime: { value: 0 }, uMouse: { value: new THREE.Vector3(0, 0, 1) }, uPull: { value: 0 } };
+  mat.onBeforeCompile = (sh) => {
+    Object.assign(sh.uniforms, uni);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', `#include <common>
+        uniform float uTime; uniform vec3 uMouse; uniform float uPull;
+        ${NOISE}
+        float disp(vec3 p){
+          vec3 n = normalize(p);
+          float d = snoise(n * 1.05 + vec3(0.0, uTime * 0.26, uTime * 0.1)) * 0.15
+                  + snoise(n * 2.4 - vec3(uTime * 0.18)) * 0.03;
+          d += smoothstep(0.75, 1.0, dot(n, uMouse)) * 0.38 * uPull;   // тянется к курсору
+          return d;
+        }`)
+      .replace('#include <beginnormal_vertex>', `
+        vec3 nrm0 = normalize(position);
+        vec3 tng = normalize(cross(nrm0, abs(nrm0.y) < 0.99 ? vec3(0.0, 1.0, 0.0) : vec3(1.0, 0.0, 0.0)));
+        vec3 btg = normalize(cross(nrm0, tng));
+        float e = 0.012;
+        vec3 q0 = position + nrm0 * disp(position);
+        vec3 a1 = position + tng * e; vec3 q1 = a1 + normalize(a1) * disp(a1);
+        vec3 a2 = position + btg * e; vec3 q2 = a2 + normalize(a2) * disp(a2);
+        vec3 objectNormal = normalize(cross(q1 - q0, q2 - q0));
+        if (dot(objectNormal, nrm0) < 0.0) objectNormal = -objectNormal;`)
+      .replace('#include <begin_vertex>', 'vec3 transformed = q0;');
+  };
+  const blob = new THREE.Mesh(geo, mat);
+  scene.add(blob);
+
+  const ptr = pointer(stage);
+  const dir = new THREE.Vector3(), inv = new THREE.Quaternion();
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w / h < 0.8 ? 8.6 : 6.2;
+    blob.position.x = w / h > 1.2 ? 1.3 : 0;
+    blob.position.y = w / h < 0.8 ? 0.6 : 0;
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    uni.uTime.value = t;
+    blob.rotation.y = t * 0.1;
+    blob.rotation.x = Math.sin(t * 0.2) * 0.2;
+    // курсор → направление в координатах капли (она вращается)
+    const px = ptr.active ? ptr.x : Math.sin(t * 0.5) * 0.8, py = ptr.active ? ptr.y : Math.cos(t * 0.35) * 0.5;
+    dir.set(px * 1.4 - blob.position.x * 0.3, py, 0.9).normalize();
+    inv.copy(blob.quaternion).invert();
+    dir.applyQuaternion(inv);
+    uni.uMouse.value.lerp(dir, 1 - Math.exp(-6 * k)).normalize();
+    uni.uPull.value = damp(uni.uPull.value, ptr.active ? 1 : 0.55, 3, k);
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); geo.dispose(); mat.dispose(); scene.environment.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["water"] = (() => {
+// «Вода под пальцем» — фото под водой: курсор гонит круги, вода преломляет картинку и даёт блики.
+// Волны считаются на маленькой сетке высот (два буфера по очереди), свет и преломление — по её наклону.
+
+
+
+
+const QUAD_VS = /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+
+function mount(stage, opts = {}) {
+  const url = opts.photo || unsplash('photo-1678027973817-f97d53e98914', 2000);
+  const renderer = makeRenderer(stage, { antialias: false });
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const quad = new THREE.PlaneGeometry(2, 2);
+  const rtOpts = { type: THREE.HalfFloatType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter };
+  let SX = 256, SY = 160, W = 1, H = 1, imgAspect = 1.5;
+  let rtA, rtB;
+  const makeTargets = () => {
+    if (rtA) { rtA.dispose(); rtB.dispose(); }
+    rtA = new THREE.WebGLRenderTarget(SX, SY, rtOpts);
+    rtB = new THREE.WebGLRenderTarget(SX, SY, rtOpts);
+    simMat.uniforms.uDelta.value.set(1 / SX, 1 / SY);
+    showMat.uniforms.uDelta.value.set(1 / SX, 1 / SY);
+  };
+
+  // Два прохода, как в классической схеме: сначала капля продавливает воду, потом волна расходится.
+  // В один проход нельзя: соседи берутся ещё без капли, и ямка тут же подпрыгивает гребнем (поймано 25.09).
+  const dropMat = new THREE.ShaderMaterial({
+    uniforms: { tPrev: { value: null }, uDrop: { value: new THREE.Vector3(-1, -1, 0) }, uRadius: { value: 0.05 }, uAspect: { value: 1 } },
+    vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tPrev; uniform vec3 uDrop; uniform float uRadius, uAspect;
+      varying vec2 vUv;
+      void main(){
+        vec4 info = texture2D(tPrev, vUv);
+        vec2 d = vUv - uDrop.xy; d.x *= uAspect;
+        float drop = max(0.0, 1.0 - length(d) / uRadius);
+        info.r -= (0.5 - cos(drop * 3.14159) * 0.5) * uDrop.z;
+        gl_FragColor = info;
+      }`,
+  });
+  // волна: высота (r) тянется к среднему соседей через скорость (g), скорость понемногу гаснет
+  const simMat = new THREE.ShaderMaterial({
+    uniforms: { tPrev: { value: null }, uDelta: { value: new THREE.Vector2() } },
+    vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tPrev; uniform vec2 uDelta;
+      varying vec2 vUv;
+      void main(){
+        vec4 info = texture2D(tPrev, vUv);
+        vec2 dx = vec2(uDelta.x, 0.0), dy = vec2(0.0, uDelta.y);
+        float avg = (texture2D(tPrev, vUv - dx).r + texture2D(tPrev, vUv + dx).r
+                   + texture2D(tPrev, vUv - dy).r + texture2D(tPrev, vUv + dy).r) * 0.25;
+        info.g += (avg - info.r) * 2.0;
+        info.g *= 0.99;                        // при 60 кадрах волны не копятся: круг живёт секунду-две
+        info.r += info.g;
+        gl_FragColor = info;
+      }`,
+  });
+  const simScene = new THREE.Scene(), dropScene = new THREE.Scene();
+  simScene.add(new THREE.Mesh(quad, simMat));
+  dropScene.add(new THREE.Mesh(quad, dropMat));
+
+  const img = texture(url, (t) => { imgAspect = t.image.width / t.image.height; fit(); });
+  const showMat = new THREE.ShaderMaterial({
+    uniforms: { tImage: { value: img }, tWater: { value: null }, uDelta: { value: new THREE.Vector2() }, uCover: { value: new THREE.Vector2(1, 1) } },
+    vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      uniform sampler2D tImage, tWater; uniform vec2 uDelta, uCover;
+      varying vec2 vUv;
+      void main(){
+        float hx = texture2D(tWater, vUv + vec2(uDelta.x, 0.0)).r - texture2D(tWater, vUv - vec2(uDelta.x, 0.0)).r;
+        float hy = texture2D(tWater, vUv + vec2(0.0, uDelta.y)).r - texture2D(tWater, vUv - vec2(0.0, uDelta.y)).r;
+        float h = texture2D(tWater, vUv).r;
+        vec3 n = normalize(vec3(-hx * 15.0, -hy * 15.0, 1.0));
+        vec2 uv = (vUv - 0.5) * uCover * 0.96 + 0.5 + n.xy * 0.03;        // вода сдвигает картинку под собой
+        vec3 col = texture2D(tImage, uv).rgb;
+        vec3 L = normalize(vec3(-0.45, 0.55, 0.7));
+        float spec = pow(max(0.0, dot(reflect(-L, n), vec3(0.0, 0.0, 1.0))), 40.0);
+        col += spec * 1.5;                                                // блики на гребнях — по ним глаз и видит круги
+        col *= 1.0 + (n.x - n.y) * 0.5 + h * 2.0;                         // склоны и гребни светлее, ямки темнее
+        col = mix(col, col * vec3(0.9, 1.0, 1.04), 0.4);                  // лёгкий холод воды
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const showScene = new THREE.Scene();
+  showScene.add(new THREE.Mesh(quad, showMat));
+
+  function fit() {
+    const a = W / H;
+    showMat.uniforms.uCover.value.set(a > imgAspect ? 1 : a / imgAspect, a > imgAspect ? imgAspect / a : 1);
+    dropMat.uniforms.uAspect.value = a;
+  }
+  makeTargets();
+  const unwatch = watchSize(stage, (w, h) => {
+    W = w; H = h;
+    renderer.setSize(w, h, false);
+    const nx = 256, ny = Math.round(Math.min(256, Math.max(96, 256 * h / w)));
+    // сетку пересоздаём, только если пропорции сильно другие (поворот телефона): иначе каждое
+    // уточнение раскладки или прятки адресной строки стирало бы все волны (поймано 25.09)
+    if (Math.abs(ny - SY) / SY > 0.3) { SX = nx; SY = ny; makeTargets(); }
+    fit();
+  });
+
+  const ptr = pointer(stage);
+  const last = new THREE.Vector2(-1, -1);
+  let rainT = 0, pressed = false;
+  const host = stage.closest('.fx') || stage;
+  const onDown = () => { pressed = true; };
+  host.addEventListener('pointerdown', onDown);
+
+  const pass = (scene, mat) => {
+    mat.uniforms.tPrev.value = rtA.texture;
+    renderer.setRenderTarget(rtB);
+    renderer.render(scene, cam);
+    [rtA, rtB] = [rtB, rtA];
+  };
+  const step = (drop) => {
+    if (drop.z) { dropMat.uniforms.uDrop.value.copy(drop); pass(dropScene, dropMat); }
+    pass(simScene, simMat);
+  };
+  const none = new THREE.Vector3(-1, -1, 0), drop = new THREE.Vector3();
+  // сразу несколько капель — вода «живая» с первого кадра
+  for (let k = 0; k < 5; k++) { step(new THREE.Vector3(0.2 + Math.random() * 0.6, 0.2 + Math.random() * 0.6, 0.25)); for (let j = 0; j < 6; j++) step(none); }
+
+  const lp = loop((t, dt) => {
+    // курсор: след из маленьких капель; нажатие — большая капля; без курсора — дождь
+    const live = ptr.active && performance.now() - ptr.moved < 1500;
+    if (live) {
+      const moved = Math.hypot(ptr.u - last.x, ptr.v - last.y);
+      drop.set(ptr.u, ptr.v, pressed ? 0.3 : Math.min(0.06, moved * 2.5));
+      pressed = false;
+      last.set(ptr.u, ptr.v);
+    } else if (!REDUCED) {
+      // редкие крупные капли: каждая даёт чёткий круг на пару секунд, между ними фото спокойное.
+      // Частый мелкий дождь при 60 кадрах превращал всё фото в рябь (поймано 25.09 на живой съёмке).
+      rainT -= dt;
+      if (rainT <= 0) { rainT = 1.0 + Math.random() * 0.8; drop.set(0.12 + Math.random() * 0.76, 0.15 + Math.random() * 0.7, 0.4); }
+      else drop.copy(none);
+    } else drop.copy(none);                           // «уменьшить движение»: дождя нет, только касания
+    step(drop);
+    step(none);                                       // второй шаг — волны бегут быстрее
+    renderer.setRenderTarget(null);
+    showMat.uniforms.tWater.value = rtA.texture;
+    renderer.render(showScene, cam);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); host.removeEventListener('pointerdown', onDown);
+      rtA.dispose(); rtB.dispose(); img.dispose(); simMat.dispose(); dropMat.dispose(); showMat.dispose(); quad.dispose();
+      release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["crystal"] = (() => {
+// «Кристалл» — огранённый камень вращается, преломляет свет и раскладывает его на радугу; вокруг мерцают искры.
+// Камень меняется кнопками: бриллиант, сапфир, рубин, изумруд.
+
+
+
+
+const GEMS = [
+  ['Бриллиант', '#ffffff', '#ffffff', 20], ['Сапфир', '#8fb4ff', '#1d4ed8', 0.7],
+  ['Рубин', '#ff9aa8', '#be123c', 0.6], ['Изумруд', '#8ff0c0', '#047857', 0.7],
+];
+
+/** Профиль бриллианта, провёрнутый вокруг оси: остриё снизу, рундист, корона, площадка */
+function gem(segs) {
+  const pts = [[0.001, -1.15], [1.0, -0.05], [1.0, 0.02], [0.57, 0.4], [0.001, 0.4]].map(([x, y]) => new THREE.Vector2(x, y));
+  return new THREE.LatheGeometry(pts, segs).toNonIndexed();   // отдельные грани — для чёткой огранки
+}
+
+/** Студия для отражений: тёмная комната, крупные софтбоксы (сверху, сзади, по бокам) и много мелких окон для «игры» */
+function studio(renderer) {
+  const env = new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(24, 24, 24), new THREE.MeshBasicMaterial({ color: 0x050508, side: THREE.BackSide })));
+  // крупный свет ставим руками: площадка камня отражает то, что сверху-сзади, грани короны — боковые полосы
+  [[0, 9, -1, 7, 5, 3.2], [0, 5, -8, 8, 3, 2.6], [-9, 1, 1, 1.2, 9, 4], [9, 1, 1, 1.2, 9, 4], [0, -9, 2, 6, 4, 1.2]].forEach(([x, y, z, w, h, k]) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color('#f4f7ff').multiplyScalar(k), side: THREE.DoubleSide }));
+    m.position.set(x, y, z);
+    m.lookAt(0, 0, 0);
+    env.add(m);
+  });
+  const cols = ['#ffffff', '#ffffff', '#ffffff', '#dbe7ff', '#f3e8ff', '#ffffff'];   // холодный белый: тёплые окна дают бежевый камень
+  for (let i = 0; i < 36; i++) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(0.9 + Math.random(), 0.9 + Math.random() * 2),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(cols[i % cols.length]).multiplyScalar(2 + Math.random() * 2), side: THREE.DoubleSide }));
+    const v = new THREE.Vector3().randomDirection().multiplyScalar(8 + Math.random() * 3);
+    m.position.copy(v);
+    m.lookAt(0, 0, 0);
+    env.add(m);
+  }
+  const pm = new THREE.PMREMGenerator(renderer);
+  const tex = pm.fromScene(env, 0.01).texture;
+  pm.dispose();
+  return tex;
+}
+
+/** Звёздочка-искра на холсте */
+function starTexture() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, 'rgba(255,255,255,1)'); grd.addColorStop(0.15, 'rgba(255,255,255,0.6)'); grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+  g.strokeStyle = 'rgba(255,255,255,0.9)'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(32, 2); g.lineTo(32, 62); g.moveTo(2, 32); g.lineTo(62, 32); g.stroke();
+  return new THREE.CanvasTexture(c);
+}
+
+function mount(stage, opts = {}) {
+  css('crystal', `
+    .gem-ui{position:absolute;right:clamp(16px,5vw,64px);bottom:clamp(20px,6vh,64px);z-index:6;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+    .gem-ui button{font:600 13px/1 Onest,system-ui,sans-serif;color:#e9e6f2;background:rgba(12,12,18,.6);border:1px solid rgba(255,255,255,.14);
+      padding:9px 13px;border-radius:999px;cursor:pointer;backdrop-filter:blur(6px);display:flex;align-items:center;gap:7px}
+    .gem-ui button i{width:10px;height:10px;border-radius:50%;display:block}
+    .gem-ui button[aria-pressed="true"]{background:#f3f1ec;color:#0b0b10;border-color:#f3f1ec}
+    @media (max-width:760px){.gem-ui{left:16px;right:16px;bottom:auto;top:84px;justify-content:flex-start}}`);
+  stage.style.background = 'radial-gradient(60% 55% at 55% 45%, #1c1830 0%, #07070a 72%)';
+
+  const renderer = makeRenderer(stage, { alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.35;
+  const scene = new THREE.Scene();
+  scene.environment = studio(renderer);
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 60);
+  camera.position.set(0, 0.2, 7);
+
+  // Позади камня — плоскость с двумя лицами. Камень преломляет «студию»: тёмный фон, полосы софтбоксов, точки
+  // света и цветные пятна; грани ловят то тёмное, то яркое, и камень «играет». На экран же та же плоскость
+  // рисует только мягкий ореол. Сплошное пятно света за камнем давало серый силуэт, узкое — чёрную корону (25.09).
+  const backMat = new THREE.ShaderMaterial({
+    uniforms: { uC: { value: new THREE.Vector2(0.5, 0.5) }, uMain: { value: 1 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: /* glsl */`
+      uniform vec2 uC; uniform float uMain; varying vec2 vUv;
+      float glow(vec2 p, vec2 c, float s){ vec2 d = p - c; return exp(-dot(d, d) / s); }
+      float band(float x, float c, float w){ return smoothstep(w, 0.0, abs(x - c)); }
+      void main(){
+        vec2 p = (vUv - uC) * vec2(30.0, 18.0);                                // в единицах сцены; камень здесь радиусом ~2
+        if (uMain > 0.5) {                                                     // проход на экран: только ореол
+          float a = glow(p, vec2(0.0), 22.0) * 0.28;
+          gl_FragColor = vec4(0.46, 0.4, 1.0, 1.0);
+          #include <colorspace_fragment>
+          gl_FragColor = vec4(gl_FragColor.rgb * a, a);
+          return;
+        }
+        vec3 col = vec3(0.012, 0.012, 0.02);
+        float fade = smoothstep(5.5, 1.5, abs(p.y));
+        col += vec3(1.0) * (band(p.x, -2.3, 0.35) + band(p.x, 0.35, 0.22) + band(p.x, 2.4, 0.3)) * fade * 2.4;   // вертикальные софтбоксы
+        col += vec3(0.92, 0.95, 1.0) * band(p.y, 2.3, 0.4) * smoothstep(4.5, 1.0, abs(p.x)) * 1.8;               // верхний софтбокс
+        vec2 q = p * 1.4, cell = floor(q), f = fract(q) - 0.5;                                                     // россыпь точек света
+        float h = fract(sin(dot(cell, vec2(12.9898, 78.233))) * 43758.5453);
+        col += vec3(1.0) * step(0.7, h) * smoothstep(0.16, 0.0, length(f - (vec2(fract(h * 7.0), fract(h * 13.0)) - 0.5) * 0.5)) * 3.0;
+        col += vec3(0.3, 0.85, 1.0) * glow(p, vec2(1.5, -1.1), 1.2) * 1.4;      // цветные пятна — видны только сквозь камень
+        col += vec3(1.0, 0.45, 0.72) * glow(p, vec2(-1.3, 1.0), 1.1) * 1.3;
+        col += vec3(1.0, 0.8, 0.35) * glow(p, vec2(-0.6, -1.8), 0.9) * 1.0;
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const back = new THREE.Mesh(new THREE.PlaneGeometry(30, 18), backMat);
+  back.position.z = -7;
+  // проход для преломления идёт в свой буфер, проход на экран — в null: так плоскость знает, какое лицо показать
+  back.onBeforeRender = (r) => { backMat.uniforms.uMain.value = r.getRenderTarget() === null ? 1 : 0; };
+  scene.add(back);
+
+  const mat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0, roughness: 0, transmission: 1, thickness: 1.2, ior: 2.42, dispersion: IS_MOBILE ? 3 : 8,
+    iridescence: 0.2, iridescenceIOR: 1.6, specularIntensity: 1, envMapIntensity: 3, flatShading: true,
+    attenuationColor: new THREE.Color('#ffffff'), attenuationDistance: 20,
+  });
+  const stone = new THREE.Mesh(gem(IS_MOBILE ? 12 : 16), mat);
+  stone.rotation.x = 0.22;
+  const holder = new THREE.Group();
+  holder.add(stone);
+  scene.add(holder);
+
+  // искры: вспыхивают в случайных точках поверхности
+  const SP = IS_MOBILE ? 18 : 34;
+  const sp = new Float32Array(SP * 3), ph = new Float32Array(SP);
+  for (let i = 0; i < SP; i++) {
+    const a = Math.random() * Math.PI * 2, y = -0.9 + Math.random() * 1.35, r = y > 0 ? 1.0 - y * 0.8 : (1.08 + y);
+    sp.set([Math.cos(a) * r * 1.02, y, Math.sin(a) * r * 1.02], i * 3);
+    ph[i] = Math.random() * 10;
+  }
+  const spGeo = new THREE.BufferGeometry();
+  spGeo.setAttribute('position', new THREE.BufferAttribute(sp, 3));
+  spGeo.setAttribute('aPh', new THREE.BufferAttribute(ph, 1));
+  const spMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 }, uTex: { value: starTexture() }, uPR: { value: renderer.getPixelRatio() } },
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: /* glsl */`
+      attribute float aPh; uniform float uTime, uPR; varying float vA;
+      void main(){
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        float tw = pow(max(0.0, sin(uTime * 1.7 + aPh * 3.7)), 12.0);
+        vA = tw;
+        gl_PointSize = (6.0 + 34.0 * tw) * uPR;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: 'uniform sampler2D uTex; varying float vA; void main(){ gl_FragColor = texture2D(uTex, gl_PointCoord) * vA; }',
+  });
+  stone.add(new THREE.Points(spGeo, spMat));
+
+  // кнопки камней
+  const ui = document.createElement('div');
+  ui.className = 'gem-ui';
+  ui.innerHTML = GEMS.map(([name, dot], i) => `<button type="button" data-i="${i}" aria-pressed="${i === 0}"><i style="background:${dot}"></i>${name}</button>`).join('');
+  stage.appendChild(ui);
+  const pick = (i) => {
+    const [, , att, dist] = GEMS[i];
+    mat.attenuationColor.set(att);
+    mat.attenuationDistance = dist;
+    ui.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.i === i)));
+  };
+  ui.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) pick(+b.dataset.i); });
+
+  const ptr = pointer(stage);
+  let rx = 0, ry = 0;
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w / h < 0.8 ? 10 : 7;
+    holder.position.x = w / h > 1.2 ? 1.1 : 0;
+    camera.updateProjectionMatrix();
+    // точка фона ровно за камнем: луч от камеры через камень до плоскости фона (z = −7)
+    const k = (camera.position.z + 7) / camera.position.z;
+    backMat.uniforms.uC.value.set(0.5 + holder.position.x * k / 30, 0.5 + (holder.position.y - camera.position.y) * k / 18 + camera.position.y / 18);
+  });
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    rx = damp(rx, ptr.active ? -ptr.y * 0.35 : 0, 3, k);
+    ry = damp(ry, ptr.active ? ptr.x * 0.6 : 0, 3, k);
+    stone.rotation.y = t * 0.45 + ry;
+    holder.rotation.x = rx;
+    holder.position.y = Math.sin(t * 0.8) * 0.06;
+    spMat.uniforms.uTime.value = t;
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); ui.remove(); stone.geometry.dispose(); mat.dispose(); spGeo.dispose(); spMat.dispose();
+      scene.environment.dispose(); release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["lava"] = (() => {
+// «Лава-лампа» — объёмные капли сливаются и расходятся, одна идёт за курсором.
+// Сцена считается лучами прямо в шейдере (raymarching); рисуем в пониженном разрешении — лава мягкая, это незаметно.
+
+
+
+
+function mount(stage, opts = {}) {
+  const renderer = makeRenderer(stage, { antialias: false });
+  const lowRes = IS_MOBILE ? 0.45 : 0.6;
+  renderer.setPixelRatio(lowRes);
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const uni = {
+    uRes: { value: new THREE.Vector2(1, 1) }, uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(0.4, -0.2) },
+    uA: { value: new THREE.Color(opts.c1 || '#ff5a1f') }, uB: { value: new THREE.Color(opts.c2 || '#ff2d7a') },
+    uC: { value: new THREE.Color(opts.c3 || '#ffc46b') }, uBg: { value: new THREE.Color(opts.bg || '#12060f') },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni,
+    vertexShader: 'void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: /* glsl */`
+      uniform vec2 uRes, uMouse; uniform float uTime; uniform vec3 uA, uB, uC, uBg;
+      float smin(float a, float b, float k){ float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0); return mix(b, a, h) - k * h * (1.0 - h); }
+      float map(vec3 p){
+        float d = 1e9;
+        for (int i = 0; i < 7; i++){
+          float f = float(i);
+          vec3 c = vec3(sin(uTime * 0.23 + f * 1.7) * 1.9, sin(uTime * 0.31 + f * 2.3) * 1.35, cos(uTime * 0.27 + f * 1.1) * 0.7);
+          d = smin(d, length(p - c) - (0.55 + 0.18 * sin(f * 3.1 + uTime * 0.5)), 0.75);
+        }
+        return smin(d, length(p - vec3(uMouse * vec2(2.6, 1.6), 0.6)) - 0.5, 0.75);
+      }
+      vec3 nrm(vec3 p){
+        vec2 e = vec2(0.003, 0.0);
+        return normalize(vec3(map(p + e.xyy) - map(p - e.xyy), map(p + e.yxy) - map(p - e.yxy), map(p + e.yyx) - map(p - e.yyx)));
+      }
+      void main(){
+        vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+        vec3 ro = vec3(0.0, 0.0, 5.2), rd = normalize(vec3(uv, -1.55));
+        float t = 0.0; bool hit = false;
+        for (int i = 0; i < 72; i++){
+          float d = map(ro + rd * t);
+          if (d < 0.0025){ hit = true; break; }
+          t += d;
+          if (t > 11.0) break;
+        }
+        vec3 col = uBg + vec3(0.12, 0.03, 0.06) * (1.0 - length(uv));            // тёплое свечение фона
+        if (hit){
+          vec3 p = ro + rd * t, n = nrm(p);
+          vec3 L = normalize(vec3(0.5, 0.8, 0.6));
+          float dif = max(dot(n, L), 0.0);
+          float spec = pow(max(dot(reflect(-L, n), -rd), 0.0), 48.0);
+          float fres = pow(1.0 - max(dot(n, -rd), 0.0), 2.5);
+          vec3 base = mix(uA, uB, smoothstep(-1.2, 1.4, p.y + n.x * 0.4));       // снизу оранжевая, сверху малиновая
+          col = base * (0.22 + 0.85 * dif) + uC * fres * 0.9 + vec3(1.0) * spec * 0.8;
+          col += base * 0.35 * smoothstep(0.2, 1.0, n.z);                          // «жар» изнутри
+        }
+        gl_FragColor = vec4(col, 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const scene = new THREE.Scene();
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+  stage.querySelector('.fx__gl').style.imageRendering = 'auto';
+
+  const ptr = pointer(stage);
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    uni.uRes.value.set(w * lowRes, h * lowRes);
+  });
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    uni.uTime.value = t;
+    const mx = ptr.active ? ptr.x * (uni.uRes.value.x / uni.uRes.value.y) / 1.6 : Math.sin(t * 0.4) * 0.7;
+    const my = ptr.active ? ptr.y : Math.cos(t * 0.3) * 0.5;
+    uni.uMouse.value.set(damp(uni.uMouse.value.x, mx, 2.5, k), damp(uni.uMouse.value.y, my, 2.5, k));
+    renderer.render(scene, cam);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); mat.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["dotwave"] = (() => {
+// «Точечная волна» — поле из тысяч точек дышит волнами, курсор пускает по нему круги.
+
+
+
+
+function mount(stage, opts = {}) {
+  const COLS = IS_MOBILE ? 110 : 210, ROWS = IS_MOBILE ? 80 : 130, GAP = 0.13;
+  stage.style.background = 'radial-gradient(90% 70% at 50% 35%, #131025 0%, #07070b 70%)';
+  const renderer = makeRenderer(stage, { alpha: true, antialias: false });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 60);
+
+  const pos = new Float32Array(COLS * ROWS * 3);
+  let i = 0;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    pos.set([(c - COLS / 2) * GAP, 0, -r * GAP + 3], i * 3);
+    i++;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const uni = {
+    uTime: { value: 0 }, uMouse: { value: new THREE.Vector3(0, 0, -4) }, uPush: { value: 0 }, uPR: { value: renderer.getPixelRatio() },
+    uA: { value: new THREE.Color(opts.c1 || '#7c5cff') }, uB: { value: new THREE.Color(opts.c2 || '#5eead4') },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: /* glsl */`
+      ${NOISE}
+      uniform float uTime, uPush, uPR; uniform vec3 uMouse;
+      varying float vH; varying float vFade;
+      void main(){
+        vec3 p = position;
+        float w = sin(p.x * 0.45 + uTime * 0.9) * 0.28 + sin(p.z * 0.6 - uTime * 0.7) * 0.22
+                + snoise(vec3(p.xz * 0.16, uTime * 0.12)) * 0.55;
+        float d = distance(p.xz, uMouse.xz);
+        w += sin(d * 3.2 - uTime * 5.5) * 0.45 * exp(-d * 0.55) * uPush;           // круги от курсора
+        p.y += w;
+        vH = w;
+        vec4 mv = modelViewMatrix * vec4(p, 1.0);
+        vFade = smoothstep(19.0, 2.5, -mv.z);
+        gl_PointSize = (3.4 + w * 1.6) * uPR * (9.0 / -mv.z);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */`
+      uniform vec3 uA, uB; varying float vH; varying float vFade;
+      void main(){
+        float a = smoothstep(0.5, 0.15, length(gl_PointCoord - 0.5));
+        vec3 col = mix(uA, uB, smoothstep(-0.5, 0.7, vH));
+        col *= 0.9 + 1.4 * smoothstep(-0.4, 0.9, vH);                               // гребни ярче
+        gl_FragColor = vec4(col * a * vFade * 1.25, a * vFade);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const field = new THREE.Points(geo, mat);
+  field.frustumCulled = false;
+  scene.add(field);
+
+  const ptr = pointer(stage);
+  const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.set(0, w / h < 0.8 ? 3.2 : 2.3, w / h < 0.8 ? 7.5 : 6.2);
+    camera.lookAt(0, 0, -4);
+    camera.updateProjectionMatrix();
+  });
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    uni.uTime.value = t;
+    const tx = ptr.active ? ptr.x : Math.sin(t * 0.3) * 0.5, ty = ptr.active ? ptr.y : -0.25 + Math.sin(t * 0.2) * 0.15;
+    ray.setFromCamera({ x: tx, y: ty }, camera);
+    if (ray.ray.intersectPlane(plane, hit)) uni.uMouse.value.lerp(hit, 1 - Math.exp(-6 * k));
+    uni.uPush.value = damp(uni.uPush.value, ptr.active ? 1 : 0.6, 2, k);
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); geo.dispose(); mat.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["globe"] = (() => {
+// «Глобус маршрутов» — Земля из точек с настоящими материками, из Батуми расходятся маршруты.
+// Материки — открытые данные Natural Earth (пакет world-atlas, лицензия ISC) с того же CDN, что и Three.js.
+
+
+
+
+const LAND = 'https://cdn.jsdelivr.net/npm/world-atlas@2/land-110m.json';
+const HUB = ['Батуми', 41.64, 41.64];
+const CITIES = [
+  ['Тбилиси', 41.72, 44.79], ['Стамбул', 41.01, 28.98], ['Москва', 55.76, 37.62], ['Дубай', 25.2, 55.27],
+  ['Берлин', 52.52, 13.4], ['Ереван', 40.18, 44.51], ['Баку', 40.41, 49.87], ['Тель-Авив', 32.09, 34.78],
+  ['Варшава', 52.23, 21.01], ['Алматы', 43.24, 76.89], ['Лондон', 51.51, -0.13], ['Нью-Йорк', 40.71, -74.0],
+];
+const TAGGED = ['Москва', 'Дубай', 'Лондон', 'Стамбул', 'Берлин'];   // подписанные города, по важности
+
+const toV = (lat, lon, r = 1) => {
+  const phi = (90 - lat) * Math.PI / 180, th = (lon + 180) * Math.PI / 180;
+  return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(th), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(th));
+};
+
+/** TopoJSON → кольца полигонов в градусах (долгота, широта) */
+function rings(topo) {
+  const [sx, sy] = topo.transform.scale, [tx, ty] = topo.transform.translate;
+  const arcs = topo.arcs.map((arc) => { let x = 0, y = 0; return arc.map(([dx, dy]) => { x += dx; y += dy; return [x * sx + tx, y * sy + ty]; }); });
+  const ring = (ids) => {
+    const out = [];
+    ids.forEach((id, k) => {
+      const a = id < 0 ? arcs[~id].slice().reverse() : arcs[id];
+      a.forEach((pt, j) => { if (!(j === 0 && k > 0)) out.push(pt); });
+    });
+    return out;
+  };
+  const o = topo.objects.land, list = o.type === 'GeometryCollection' ? o.geometries : [o], out = [];
+  for (const g of list) {
+    if (g.type === 'Polygon') g.arcs.forEach((r) => out.push(ring(r)));
+    if (g.type === 'MultiPolygon') g.arcs.forEach((p) => p.forEach((r) => out.push(ring(r))));
+  }
+  return out;
+}
+
+function mount(stage, opts = {}) {
+  css('globe', `
+    .globe-tag{position:absolute;z-index:5;pointer-events:none;font:600 12.5px/1 Onest,system-ui,sans-serif;color:#efeaff;
+      padding:5px 9px;border-radius:999px;background:rgba(14,12,26,.72);border:1px solid rgba(167,139,250,.35);
+      transform:translate(-50%,-150%);white-space:nowrap;transition:opacity .25s}
+    .globe-tag.hub{background:#a78bfa;color:#0b0b12;border-color:#a78bfa}`);
+  stage.style.background = 'radial-gradient(60% 60% at 60% 45%, #16122a 0%, #06060a 72%)';
+  const renderer = makeRenderer(stage, { alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 50);
+  camera.position.set(0, 0, 4.4);
+  const globe = new THREE.Group();
+  scene.add(globe);
+
+  // основа — тёмный шар, чтобы точки обратной стороны не просвечивали
+  globe.add(new THREE.Mesh(new THREE.SphereGeometry(0.985, 64, 48), new THREE.MeshBasicMaterial({ color: 0x0c0a18 })));
+  // свечение атмосферы по краю
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(1.14, 64, 48), new THREE.ShaderMaterial({
+    side: THREE.BackSide, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false,
+    vertexShader: 'varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0,0,1.0)), 3.0); gl_FragColor = vec4(0.55, 0.45, 1.0, 1.0) * i * 1.6; }',
+  }));
+  scene.add(glow);
+
+  // точки суши: равномерная сетка по сфере, берём только те, что на материках
+  const dotMat = new THREE.PointsMaterial({ color: new THREE.Color(opts.dots || '#b9a8ff'), size: IS_MOBILE ? 0.02 : 0.016, transparent: true, opacity: 0.95 });
+  let dots = null;
+  fetch(LAND).then((r) => r.json()).then((topo) => {
+    const W = 1024, H = 512, cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const g = cv.getContext('2d');
+    g.beginPath();
+    for (const r of rings(topo)) r.forEach(([lon, lat], j) => { const x = (lon + 180) / 360 * W, y = (90 - lat) / 180 * H; if (j) g.lineTo(x, y); else g.moveTo(x, y); });
+    g.fill('evenodd');
+    const px = g.getImageData(0, 0, W, H).data;
+    const N = IS_MOBILE ? 16000 : 34000, pts = [];
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2, lat = Math.asin(y) * 180 / Math.PI;
+      const lon = ((i * 137.50776) % 360) - 180;
+      const X = Math.floor((lon + 180) / 360 * (W - 1)), Y = Math.floor((90 - lat) / 180 * (H - 1));
+      if (px[(Y * W + X) * 4 + 3] > 128) { const v = toV(lat, lon, 1.0); pts.push(v.x, v.y, v.z); }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    dots = new THREE.Points(geo, dotMat);
+    globe.add(dots);
+  }).catch((e) => console.error('материки не загрузились', e));
+
+  // дуги маршрутов: хвост кометы бежит по дуге от Батуми
+  const hub = toV(HUB[1], HUB[2], 1.0);
+  const arcMat = new THREE.ShaderMaterial({
+    uniforms: { uTime: { value: 0 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: 'attribute float aT; attribute float aPh; varying float vT; varying float vPh; void main(){ vT = aT; vPh = aPh; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader: /* glsl */`
+      uniform float uTime; varying float vT; varying float vPh;
+      void main(){
+        float head = fract(uTime * 0.22 + vPh) * 1.4;
+        float a = smoothstep(head - 0.45, head, vT) * step(vT, head);
+        vec3 col = mix(vec3(0.66, 0.55, 1.0), vec3(0.49, 0.83, 0.99), vT);
+        gl_FragColor = vec4(col, 1.0) * (0.12 + a * 0.95);
+      }`,
+  });
+  const tags = [];
+  CITIES.forEach(([name, lat, lon], i) => {
+    const to = toV(lat, lon, 1.0), pts = [], ts = [], ph = [];
+    const lift = 0.08 + hub.distanceTo(to) * 0.28;
+    for (let k = 0; k <= 64; k++) {
+      const t = k / 64;
+      const p = hub.clone().lerp(to, t).normalize().multiplyScalar(1.0 + Math.sin(Math.PI * t) * lift);
+      pts.push(p.x, p.y, p.z); ts.push(t); ph.push(i * 0.137);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    g.setAttribute('aT', new THREE.Float32BufferAttribute(ts, 1));
+    g.setAttribute('aPh', new THREE.Float32BufferAttribute(ph, 1));
+    globe.add(new THREE.Line(g, arcMat));
+    // подписи — городам подальше от Батуми, иначе Тбилиси и Ереван наезжают на него
+    if (TAGGED.includes(name)) tags.push({ name, pos: to });
+  });
+  // порядок = важность: при тесноте (телефон) подпись, которая налезла бы на более важную, прячется
+  tags.sort((a, b) => TAGGED.indexOf(a.name) - TAGGED.indexOf(b.name));
+  tags.unshift({ name: HUB[0], pos: hub, hub: true });
+  const pins = new THREE.Points(new THREE.BufferGeometry().setFromPoints([hub, ...CITIES.map(([, a, b]) => toV(a, b, 1.005))]),
+    new THREE.PointsMaterial({ color: 0xffffff, size: 0.045, transparent: true, opacity: 0.95 }));
+  globe.add(pins);
+  const tagEls = tags.map((t) => {
+    const el = document.createElement('div');
+    el.className = 'globe-tag' + (t.hub ? ' hub' : '');
+    el.textContent = t.name;
+    stage.appendChild(el);
+    return el;
+  });
+
+  // Батуми — к зрителю: поворот по долготе и наклон по широте
+  const baseY = -Math.atan2(hub.x, hub.z), baseX = HUB[1] * Math.PI / 180 * 0.7;
+  let rotY = baseY, rotX = baseX, vel = 0, drag = null;
+  const onDown = (e) => { drag = { x: e.clientX, r: rotY }; vel = 0; };
+  const onMove = (e) => { if (!drag) return; const nr = drag.r + (e.clientX - drag.x) * 0.006; vel = nr - rotY; rotY = nr; };
+  const onUp = () => { drag = null; };
+  stage.addEventListener('pointerdown', onDown);
+  window.addEventListener('pointermove', onMove);
+  window.addEventListener('pointerup', onUp);
+  stage.style.touchAction = 'pan-y';
+
+  const ptr = pointer(stage);
+  let W = 1, H = 1;
+  const unwatch = watchSize(stage, (w, h) => {
+    W = w; H = h;
+    tags.forEach((tg) => { tg.w = 0; });                 // размеры подписей перемерим на следующем кадре
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w / h < 0.8 ? 6 : 4.4;
+    globe.position.x = glow.position.x = w / h > 1.2 ? 0.75 : 0;
+    camera.updateProjectionMatrix();
+  });
+
+  const v = new THREE.Vector3(), camDir = new THREE.Vector3();
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    if (!drag) { rotY += vel; vel *= Math.pow(0.92, k * 60); rotY += k * 0.05; }
+    rotX = damp(rotX, baseX + (ptr.active ? -ptr.y * 0.15 : 0), 2, k);
+    globe.rotation.set(rotX, rotY, 0);
+    arcMat.uniforms.uTime.value = t;
+    renderer.render(scene, camera);
+    // подписи городов: видны, только когда город на нашей стороне глобуса и подпись ни на кого не налезает
+    globe.updateMatrixWorld();
+    const shown = [];
+    tags.forEach((tg, i) => {
+      const el = tagEls[i];
+      v.copy(tg.pos).multiplyScalar(1.02).applyMatrix4(globe.matrixWorld);
+      camDir.copy(v).sub(globe.position).normalize();
+      const front = camDir.dot(camera.position.clone().sub(v).normalize()) > 0.25;
+      v.project(camera);
+      const x = (v.x + 1) / 2 * W, y = (1 - v.y) / 2 * H;
+      if (!tg.w) { tg.w = el.offsetWidth; tg.h = el.offsetHeight; }
+      const box = [x - tg.w / 2 - 4, y - tg.h * 2 - 4, x + tg.w / 2 + 4, y - tg.h + 4];   // подпись стоит над точкой
+      const free = front && !shown.some((b) => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3]);
+      if (free) shown.push(box);
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.opacity = free ? 1 : 0;
+    });
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); tagEls.forEach((e) => e.remove());
+      stage.removeEventListener('pointerdown', onDown); window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp);
+      if (dots) dots.geometry.dispose();
+      dotMat.dispose(); arcMat.dispose(); release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["slideshow"] = (() => {
+// «Слайд-шоу с жидким переходом» — фото сменяют друг друга растекающейся границей; листать стрелками или пальцем.
+
+
+
+
+const SLIDES = [
+  ['photo-1665249934445-1de680641f50', 'Гостиная'], ['photo-1721738860451-2a0533cec21a', 'Спальня'],
+  ['photo-1781249144562-e15ab4c9f63c', 'Кухня'], ['photo-1774716925801-cad665240e12', 'Ванная'],
+  ['photo-1689717887631-088197cdc2ca', 'Балкон'],
+];
+const QUAD_VS = /* glsl */`varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+
+function mount(stage, opts = {}) {
+  css('slideshow', `
+    .ss-ui{position:absolute;right:clamp(16px,5vw,64px);bottom:clamp(20px,6vh,64px);z-index:6;display:flex;align-items:center;gap:14px;
+      font:600 14px/1 Onest,system-ui,sans-serif;color:#f3f1ec}
+    .ss-ui button{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(10,10,14,.45);color:#fff;
+      cursor:pointer;backdrop-filter:blur(8px);display:grid;place-items:center;transition:.25s}
+    .ss-ui button:hover{background:#f3f1ec;color:#0b0b10}
+    .ss-ui svg{width:18px;height:18px}
+    .ss-count{text-shadow:0 1px 12px rgba(0,0,0,.55)}
+    .ss-count b{font-size:22px;letter-spacing:-.02em}
+    .ss-bar{width:90px;height:2px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+    .ss-bar i{display:block;height:100%;width:0;background:#f3f1ec}
+    .ss-room{position:absolute;right:clamp(16px,5vw,64px);top:clamp(80px,12vh,120px);z-index:6;font:700 clamp(28px,4vw,52px)/1 Onest,system-ui,sans-serif;
+      color:#fff;letter-spacing:-.03em;text-shadow:0 2px 24px rgba(0,0,0,.55),0 1px 3px rgba(0,0,0,.35);transition:opacity .4s,transform .6s}
+    .ss-room.out{opacity:0;transform:translateY(12px)}
+    @media (max-width:760px){.ss-ui{right:16px;left:auto;bottom:auto;top:84px;gap:10px}.ss-bar{display:none}
+      .ss-room{top:89px;left:16px;right:auto;font-size:20px;padding:8px 14px;border-radius:999px;background:rgba(10,10,14,.5);backdrop-filter:blur(8px);text-shadow:none}}`);
+
+  const renderer = makeRenderer(stage, { antialias: false });
+  const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  const aspects = SLIDES.map(() => 1.5);
+  const texs = SLIDES.map(([id], i) => texture(unsplash(id, 2000), (t) => { aspects[i] = t.image.width / t.image.height; fit(); }));
+  const uni = {
+    tA: { value: texs[0] }, tB: { value: texs[1] }, uP: { value: 0 }, uTime: { value: 0 },
+    uCoverA: { value: new THREE.Vector2(1, 1) }, uCoverB: { value: new THREE.Vector2(1, 1) },
+  };
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni, vertexShader: QUAD_VS,
+    fragmentShader: /* glsl */`
+      ${NOISE}
+      uniform sampler2D tA, tB; uniform float uP, uTime; uniform vec2 uCoverA, uCoverB;
+      varying vec2 vUv;
+      void main(){
+        float n = snoise(vec3(vUv * vec2(2.2, 3.0), uTime * 0.15)) * 0.5 + 0.5;
+        float edge = uP * 1.5 - 0.25;
+        float m = smoothstep(edge - 0.12, edge + 0.12, vUv.x * 0.72 + n * 0.28);        // 1 — ещё старое фото
+        vec2 a = (vUv - 0.5) * uCoverA * (1.0 - 0.05 * uP) + 0.5 + vec2(0.06 * (1.0 - m) * uP, 0.0);
+        vec2 b = (vUv - 0.5) * uCoverB * (1.0 + 0.08 * (1.0 - uP)) + 0.5 - vec2(0.05 * m * (1.0 - uP), 0.0);
+        vec3 col = mix(texture2D(tB, b).rgb, texture2D(tA, a).rgb, m);
+        float ink = smoothstep(0.0, 0.5, m) * smoothstep(1.0, 0.5, m);                    // светлая кромка чернил
+        col += ink * vec3(1.0, 0.95, 0.9) * 0.35;
+        float vig = smoothstep(1.2, 0.3, length(vUv - 0.5) * 1.5);
+        gl_FragColor = vec4(col * mix(0.6, 1.0, vig), 1.0);
+        #include <colorspace_fragment>
+      }`,
+  });
+  const scene = new THREE.Scene();
+  scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+
+  const ui = document.createElement('div');
+  ui.className = 'ss-ui';
+  const arrow = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="${d}"/></svg>`;
+  ui.innerHTML = `<button type="button" data-d="-1" aria-label="Назад">${arrow('M15 5l-7 7 7 7')}</button>
+    <span class="ss-count"><b>01</b> / ${String(SLIDES.length).padStart(2, '0')}</span><span class="ss-bar"><i></i></span>
+    <button type="button" data-d="1" aria-label="Вперёд">${arrow('M9 5l7 7-7 7')}</button>`;
+  const room = document.createElement('div');
+  room.className = 'ss-room';
+  room.textContent = SLIDES[0][1];
+  stage.append(ui, room);
+  const countEl = ui.querySelector('b'), barEl = ui.querySelector('.ss-bar i');
+
+  let W = 1, H = 1, cur = 0, next = 1, p = 0, moving = false, wait = 0;
+  const HOLD = 4.2;
+  function fit() {
+    const a = W / H, cov = (ia) => (a > ia ? [1, ia / a] : [a / ia, 1]);
+    uni.uCoverA.value.set(...cov(aspects[cur]));
+    uni.uCoverB.value.set(...cov(aspects[next]));
+  }
+  const go = (d) => {
+    if (moving) return;
+    next = (cur + d + SLIDES.length) % SLIDES.length;
+    uni.tB.value = texs[next];
+    fit();
+    moving = true; p = 0; wait = 0;
+    room.classList.add('out');
+  };
+  ui.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) go(+b.dataset.d); });
+  let sx = null;
+  const onDown = (e) => { sx = e.clientX; };
+  const onUp = (e) => { if (sx != null && Math.abs(e.clientX - sx) > 40) go(e.clientX < sx ? 1 : -1); sx = null; };
+  stage.addEventListener('pointerdown', onDown);
+  stage.addEventListener('pointerup', onUp);
+  stage.style.touchAction = 'pan-y';
+
+  const unwatch = watchSize(stage, (w, h) => { W = w; H = h; renderer.setSize(w, h, false); fit(); });
+  const lp = loop((t, dt) => {
+    uni.uTime.value = t;
+    if (moving) {
+      p = Math.min(1, p + dt / 1.5);
+      uni.uP.value = p * p * (3 - 2 * p);
+      if (p >= 1) {
+        cur = next; moving = false;
+        uni.tA.value = texs[cur]; uni.uP.value = 0;
+        next = (cur + 1) % SLIDES.length; uni.tB.value = texs[next];
+        fit();
+        countEl.textContent = String(cur + 1).padStart(2, '0');
+        room.textContent = SLIDES[cur][1];
+        room.classList.remove('out');
+      }
+    } else if (!REDUCED) {
+      wait += dt;
+      if (wait >= HOLD) go(1);
+    }
+    barEl.style.width = (moving ? 100 : Math.min(100, wait / HOLD * 100)) + '%';
+    renderer.render(scene, cam);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); ui.remove(); room.remove();
+      stage.removeEventListener('pointerdown', onDown); stage.removeEventListener('pointerup', onUp);
+      texs.forEach((t) => t.dispose()); mat.dispose(); release(renderer);
+    },
+  };
+}
+
+return { mount };
+})();
+FX["diorama"] = (() => {
+// «Диорама» — море, город и горы слоями на разной глубине; сцена поворачивается за курсором или наклоном телефона.
+// День, закат и ночь — кнопкой: меняются только цвета в CSS-переменных, рисунок один.
+
+
+const SVG = (inner) => `<svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">${inner}</svg>`;
+
+// силуэт хребта из синусов — горы разные, но плавные
+function ridge(base, amp, seed, step = 40) {
+  let d = `M0 900 L0 ${base}`;
+  for (let x = 0; x <= 1600; x += step) {
+    const y = base - amp * (0.55 * Math.sin(x * 0.004 + seed) + 0.3 * Math.sin(x * 0.011 + seed * 2.1) + 0.15 * Math.sin(x * 0.027 + seed * 3.7));
+    d += ` L${x} ${y.toFixed(1)}`;
+  }
+  return d + ' L1600 900 Z';
+}
+
+function city() {
+  let s = '', w = '';
+  const blocks = [[180, 70, 150], [255, 50, 210], [310, 60, 170], [375, 40, 250], [420, 70, 190], [500, 55, 280], [560, 45, 200],
+    [610, 60, 330], [680, 50, 230], [740, 70, 260], [820, 45, 210], [870, 60, 300], [940, 55, 220], [1010, 40, 180],
+    [1060, 60, 240], [1130, 50, 190], [1400, 60, 170], [1470, 55, 230], [1530, 70, 160]];
+  for (const [x, bw, h] of blocks) {
+    s += `<rect x="${x}" y="${720 - h}" width="${bw}" height="${h + 40}" rx="3"/>`;
+    for (let yy = 730 - h; yy < 700; yy += 22) for (let xx = x + 8; xx < x + bw - 8; xx += 14) {
+      if (((xx * 7 + yy * 3) % 5) < 2) w += `<rect x="${xx}" y="${yy}" width="6" height="9"/>`;
+    }
+  }
+  // башня-«алфавит»: тонкая с двойной спиралью огней
+  s += '<rect x="1215" y="330" width="26" height="430" rx="13"/><circle cx="1228" cy="322" r="18"/>';
+  let hel = '';
+  for (let k = 0; k < 18; k++) {
+    const y = 350 + k * 22, off = Math.sin(k * 0.9) * 11;
+    hel += `<circle cx="${1228 + off}" cy="${y}" r="3.2"/><circle cx="${1228 - off}" cy="${y + 11}" r="3.2"/>`;
+  }
+  // колесо обозрения
+  let wheel = '<g class="wheel"><circle cx="1330" cy="560" r="92" stroke-width="6"/>';
+  for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; wheel += `<line x1="1330" y1="560" x2="${(1330 + Math.cos(a) * 92).toFixed(1)}" y2="${(560 + Math.sin(a) * 92).toFixed(1)}" stroke-width="2.5"/>`; }
+  wheel += '<path d="M1300 760 L1330 560 L1360 760" fill="none" stroke-width="7"/></g>';
+  return { s, w, hel, wheel };
+}
+
+function palm(x, flip) {
+  const f = flip ? -1 : 1;
+  let p = `<path d="M${x} 905 C ${x + 18 * f} 780, ${x + 8 * f} 650, ${x + 60 * f} 520" fill="none" stroke-width="18" stroke-linecap="round"/>`;
+  const tx = x + 60 * f, ty = 520;
+  for (let k = 0; k < 7; k++) {
+    const a = (-150 + k * 42) * Math.PI / 180, L = 150 + (k % 2) * 30;
+    const ex = tx + Math.cos(a) * L * f, ey = ty + Math.sin(a) * L * 0.8 + 40;
+    const cx = tx + Math.cos(a) * L * 0.5 * f, cy = ty + Math.sin(a) * L * 0.5 - 30;
+    p += `<path d="M${tx} ${ty} Q ${cx.toFixed(0)} ${cy.toFixed(0)} ${ex.toFixed(0)} ${ey.toFixed(0)}" fill="none" stroke-width="14" stroke-linecap="round"/>`;
+  }
+  return p;
+}
+
+function mount(stage, opts = {}) {
+  css('diorama', `
+    .dio{position:absolute;inset:0;perspective:1000px;overflow:hidden;background:var(--sky2)}
+    .dio__scene{position:absolute;inset:-6%;transform-style:preserve-3d;will-change:transform}
+    .dio__l{position:absolute;inset:0}
+    .dio__l svg{position:absolute;inset:0;width:100%;height:100%}
+    .dio,.dio *{transition:fill 1.4s ease,stroke 1.4s ease,background 1.4s ease,opacity 1.4s ease}
+    .dio[data-time="day"]{--sky1:#4ea7f5;--sky2:#d8efff;--sun:#fff4cf;--sunY:16%;--m1:#9bbad0;--m2:#6f9a8c;--city:#3c5a6c;--win:0;--sea1:#3d8fca;--sea2:#1d5d8e;--palm:#1c3527;--path:.35;--stars:0;--cloud:#ffffff}
+    .dio[data-time="sunset"]{--sky1:#2c2458;--sky2:#ffb87a;--sun:#ffd28f;--sunY:30%;--m1:#8b6a9e;--m2:#553f74;--city:#2b2244;--win:.35;--sea1:#8a5486;--sea2:#35264f;--palm:#140e22;--path:.85;--stars:0;--cloud:#ffc2a8}
+    .dio[data-time="night"]{--sky1:#04050d;--sky2:#1b1f42;--sun:#f1efe6;--sunY:22%;--m1:#222747;--m2:#171a33;--city:#0d0f22;--win:1;--sea1:#0e1433;--sea2:#060816;--palm:#04050b;--path:.55;--stars:1;--cloud:#3a3f66}
+    .dio__sky{background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 72%)}
+    .dio__sun{position:absolute;left:66%;top:var(--sunY);width:120px;height:120px;border-radius:50%;background:var(--sun);
+      box-shadow:0 0 60px 20px var(--sun),0 0 180px 60px color-mix(in srgb,var(--sun) 45%,transparent);transition:top 1.4s ease,background 1.4s,box-shadow 1.4s}
+    .dio__stars{opacity:var(--stars);background-image:radial-gradient(1.5px 1.5px at 12% 18%,#fff,transparent),radial-gradient(1px 1px at 28% 32%,#fff,transparent),
+      radial-gradient(1.5px 1.5px at 44% 12%,#fff,transparent),radial-gradient(1px 1px at 71% 26%,#fff,transparent),radial-gradient(1.5px 1.5px at 86% 9%,#fff,transparent),
+      radial-gradient(1px 1px at 91% 38%,#fff,transparent),radial-gradient(1px 1px at 55% 40%,#fff,transparent),radial-gradient(1.5px 1.5px at 6% 44%,#fff,transparent)}
+    .dio__m1 path{fill:var(--m1)} .dio__m2 path{fill:var(--m2)}
+    .dio__clouds svg{animation:dioDrift 70s linear infinite}   /* движется рисунок, а не слой — глубина слоя остаётся */
+    .dio__clouds ellipse{fill:var(--cloud);opacity:.55}
+    @keyframes dioDrift{from{transform:translateX(-8%)}to{transform:translateX(8%)}}
+    .dio__city rect,.dio__city circle{fill:var(--city)} .dio__city line,.dio__city path{stroke:var(--city)}
+    .dio__city .wheel circle{fill:none;stroke:var(--city)}
+    .dio__city .win rect{fill:#ffd98a;opacity:var(--win)} .dio__city .hel circle{fill:#ffe3a3;opacity:calc(.25 + var(--win) * .75)}
+    .dio__sea{background:linear-gradient(180deg,var(--sea1),var(--sea2));top:auto!important;height:24%;
+      -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 6%);mask-image:linear-gradient(180deg,transparent 0,#000 6%)}
+    .dio__sea::before{content:"";position:absolute;inset:0;opacity:.35;background:repeating-linear-gradient(180deg,rgba(255,255,255,.35) 0 1px,transparent 1px 9px);
+      animation:dioWaves 6s linear infinite}
+    .dio__sea::after{content:"";position:absolute;left:58%;width:14%;top:0;bottom:0;opacity:var(--path);filter:blur(6px);
+      background:repeating-linear-gradient(180deg,var(--sun) 0 3px,transparent 3px 11px);animation:dioShimmer 2.4s ease-in-out infinite alternate}
+    @keyframes dioWaves{to{background-position:0 18px}}
+    @keyframes dioShimmer{from{transform:scaleX(.8)}to{transform:scaleX(1.15)}}
+    .dio__front path{stroke:var(--palm)}
+    .dio__front .beach{fill:var(--palm)}
+    .dio-ui{position:absolute;right:clamp(16px,5vw,64px);top:clamp(80px,12vh,120px);z-index:6;display:flex;gap:6px}
+    .dio-ui button{font:600 13px/1 Onest,system-ui,sans-serif;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.35);
+      background:rgba(10,12,20,.35);color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
+    .dio-ui button[aria-pressed="true"]{background:#fff;color:#0b0b12}
+    @media (max-width:760px){.dio-ui{left:16px;right:auto;top:84px}}
+    @media (prefers-reduced-motion:reduce){.dio__clouds svg,.dio__sea::before,.dio__sea::after{animation:none}}`);
+
+  const P = 1000;
+  const layer = (cls, z, html) => `<div class="dio__l ${cls}" style="transform:translateZ(${z}px) scale(${((P - z) / P).toFixed(3)})">${html}</div>`;
+  const c = city();
+  const wrap = document.createElement('div');
+  wrap.className = 'dio';
+  wrap.dataset.time = opts.time || 'sunset';
+  wrap.innerHTML = `<div class="dio__scene">
+    ${layer('dio__sky', -900, '<div class="dio__stars" style="position:absolute;inset:0"></div><div class="dio__sun"></div>')}
+    ${layer('dio__m1', -620, SVG(`<path d="${ridge(560, 150, 1.3)}"/>`))}
+    ${layer('dio__clouds', -480, SVG('<ellipse cx="260" cy="250" rx="170" ry="34"/><ellipse cx="360" cy="228" rx="110" ry="30"/><ellipse cx="1080" cy="190" rx="200" ry="36"/><ellipse cx="1210" cy="172" rx="120" ry="28"/><ellipse cx="760" cy="300" rx="140" ry="22"/>'))}
+    ${layer('dio__m2', -330, SVG(`<path d="${ridge(650, 110, 4.1, 30)}"/>`))}
+    ${layer('dio__city', -190, SVG(`${c.s}${c.wheel}<g class="win">${c.w}</g><g class="hel">${c.hel}</g>`))}
+    ${layer('dio__sea', -90, '')}
+    ${layer('dio__front', 70, SVG(`<path class="beach" d="M0 880 Q 800 850 1600 880 L1600 900 L0 900 Z" stroke="none"/>${palm(90, false)}${palm(1510, true)}`))}
+  </div>`;
+  const ui = document.createElement('div');
+  ui.className = 'dio-ui';
+  ui.innerHTML = [['day', 'День'], ['sunset', 'Закат'], ['night', 'Ночь']]
+    .map(([k, n]) => `<button type="button" data-t="${k}" aria-pressed="${k === wrap.dataset.time}">${n}</button>`).join('');
+  stage.append(wrap, ui);
+  ui.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    wrap.dataset.time = b.dataset.t;
+    ui.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  });
+
+  const scene = wrap.querySelector('.dio__scene');
+  const ptr = pointer(stage);
+  let tiltX = null, tiltY = null, rx = 0, ry = 0;
+  const onTilt = (e) => { if (e.beta == null) return; tiltX = Math.max(-1, Math.min(1, (e.beta - 45) / 25)); tiltY = Math.max(-1, Math.min(1, e.gamma / 25)); };
+  window.addEventListener('deviceorientation', onTilt);
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    let x, y;
+    if (ptr.active) { x = ptr.x; y = ptr.y; }
+    else if (tiltX != null) { x = tiltY; y = -tiltX; }
+    else { x = Math.sin(t * 0.25) * 0.6; y = Math.sin(t * 0.18) * 0.3; }
+    ry = damp(ry, x * 6, 3, k);
+    rx = damp(rx, -y * 3.5, 3, k);
+    scene.style.transform = `rotateY(${ry.toFixed(3)}deg) rotateX(${rx.toFixed(3)}deg)`;
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); window.removeEventListener('deviceorientation', onTilt); wrap.remove(); ui.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["shards"] = (() => {
+// «Разлетающееся фото» — на прокрутке снимок разлетается осколками и собирается уже другим снимком.
+// Осколки — неровные треугольники одной сетки; разлёт, поворот и смену снимка считает шейдер.
+
+
+
+
+/** Сетка треугольников с сдвинутыми узлами: осколки неровные, но без щелей */
+function shardGeometry(cols, rows, w, h) {
+  const nodes = [];
+  for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) {
+    const edge = i === 0 || j === 0 || i === cols || j === rows;
+    const jx = edge ? 0 : (Math.random() - 0.5) * 0.7, jy = edge ? 0 : (Math.random() - 0.5) * 0.7;
+    nodes.push([(i + jx) / cols, (j + jy) / rows]);
+  }
+  const pos = [], uv = [], center = [], dir = [], rnd = [];
+  const tri = (a, b, c) => {
+    const P = [a, b, c].map((k) => nodes[k]);
+    const cx = (P[0][0] + P[1][0] + P[2][0]) / 3, cy = (P[0][1] + P[1][1] + P[2][1]) / 3;
+    const ang = Math.random() * Math.PI * 2, r = Math.random();
+    const d = [(cx - 0.5) * 2 + Math.cos(ang) * 0.6, (cy - 0.5) * 2 + Math.sin(ang) * 0.6, 0.4 + Math.random()];
+    for (const [u, v] of P) {
+      pos.push((u - 0.5) * w, (v - 0.5) * h, 0);
+      uv.push(u, v);
+      center.push((cx - 0.5) * w, (cy - 0.5) * h, 0);
+      dir.push(...d);
+      rnd.push(r);
+    }
+  };
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const a = j * (cols + 1) + i, b = a + 1, c = a + cols + 1, d = c + 1;
+    if ((i + j) % 2) { tri(a, b, d); tri(a, d, c); } else { tri(a, b, c); tri(b, d, c); }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setAttribute('aCenter', new THREE.Float32BufferAttribute(center, 3));
+  g.setAttribute('aDir', new THREE.Float32BufferAttribute(dir, 3));
+  g.setAttribute('aRand', new THREE.Float32BufferAttribute(rnd, 1));
+  return g;
+}
+
+function mount(stage, opts = {}) {
+  const A = opts.photoA || unsplash('photo-1665249934445-1de680641f50', 1800);
+  const B = opts.photoB || unsplash('photo-1781249144562-e15ab4c9f63c', 1800);
+  stage.style.background = 'radial-gradient(70% 60% at 50% 50%, #15121f 0%, #07070a 75%)';
+  const renderer = makeRenderer(stage, { alpha: true });
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 60);
+  camera.position.z = 6;
+
+  const aspects = [1.5, 1.5];
+  const tA = texture(A, (t) => { aspects[0] = t.image.width / t.image.height; fit(); });
+  const tB = texture(B, (t) => { aspects[1] = t.image.width / t.image.height; fit(); });
+  const uni = {
+    uP: { value: 0 }, uTex: { value: tA }, uCover: { value: new THREE.Vector2(1, 1) }, uFrame: { value: 1.6 },
+  };
+  let geo = null;
+  const mat = new THREE.ShaderMaterial({
+    uniforms: uni, side: THREE.DoubleSide, transparent: true,
+    vertexShader: /* glsl */`
+      attribute vec3 aCenter; attribute vec3 aDir; attribute float aRand;
+      uniform float uP;
+      varying vec2 vUv; varying float vE;
+      vec3 rot(vec3 p, vec3 ax, float a){ ax = normalize(ax); float c = cos(a), s = sin(a); return p * c + cross(ax, p) * s + ax * dot(ax, p) * (1.0 - c); }
+      void main(){
+        float e = clamp((uP - aRand * 0.35) / 0.65, 0.0, 1.0);
+        e = e * e * (3.0 - 2.0 * e);
+        vec3 local = position - aCenter;
+        local = rot(local, aDir + vec3(0.001), e * (aRand - 0.5) * 7.0) * (1.0 - e * 0.25);
+        vec3 c = aCenter + vec3(aDir.xy * e * 2.4, e * (0.8 + aDir.z * 2.6));
+        vUv = uv; vE = e;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(c + local, 1.0);
+      }`,
+    fragmentShader: /* glsl */`
+      uniform sampler2D uTex; uniform vec2 uCover;
+      varying vec2 vUv; varying float vE;
+      void main(){
+        vec2 uv = (vUv - 0.5) * uCover + 0.5;
+        vec3 col = texture2D(uTex, uv).rgb;
+        col *= 1.0 - vE * 0.35;                                           // улетевшие осколки темнее
+        col += vec3(0.65, 0.55, 1.0) * vE * (1.0 - vE) * 0.6;             // в полёте — светлая кромка
+        gl_FragColor = vec4(col, 1.0 - vE * 0.15);
+        #include <colorspace_fragment>
+      }`,
+  });
+  let mesh = null, planeW = 4, planeH = 2.5;
+
+  function build() {
+    if (mesh) { scene.remove(mesh); geo.dispose(); }
+    geo = shardGeometry(IS_MOBILE ? 18 : 30, IS_MOBILE ? 22 : 18, planeW, planeH);
+    mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+  }
+  function fit() {
+    const ia = aspects[which], pa = planeW / planeH;
+    uni.uCover.value.set(pa > ia ? 1 : pa / ia, pa > ia ? ia / pa : 1);
+  }
+
+  const ptr = pointer(stage);
+  let target = null, shown = 0, which = 0;
+  const unwatch = watchSize(stage, (w, h) => {
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    // рамка снимка — 78% видимой ширины, пропорции как у экрана, но не уже 4:5
+    const vh = 2 * Math.tan(camera.fov * Math.PI / 360) * camera.position.z, vw = vh * camera.aspect;
+    const nw = vw * 0.78, nh = Math.min(vh * 0.74, nw / Math.max(0.8, Math.min(1.6, w / h)));
+    if (Math.abs(nw - planeW) > 0.01 || Math.abs(nh - planeH) > 0.01 || !mesh) { planeW = nw; planeH = nh; build(); fit(); }
+  });
+
+  // прокрутка: 0–0.12 целое фото А · 0.12–0.5 разлёт · в середине смена снимка · 0.5–0.88 сборка Б · дальше целое Б
+  const explode = (p) => (p < 0.5 ? Math.min(1, Math.max(0, (p - 0.12) / 0.38)) : Math.min(1, Math.max(0, (0.88 - p) / 0.38)));
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    shown = damp(shown, target ?? 0, 5, k);
+    uni.uP.value = explode(shown);
+    const w2 = shown < 0.5 ? 0 : 1;
+    if (w2 !== which) { which = w2; uni.uTex.value = which ? tB : tA; fit(); }
+    mesh.rotation.y = damp(mesh.rotation.y, (ptr.active ? ptr.x * 0.18 : 0) + Math.sin(t * 0.3) * 0.03, 3, k);
+    mesh.rotation.x = damp(mesh.rotation.x, ptr.active ? -ptr.y * 0.12 : 0, 3, k);
+    renderer.render(scene, camera);
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) { if (target === null) shown = p; target = p; },
+    destroy() { lp.stop(); unwatch(); if (geo) geo.dispose(); mat.dispose(); tA.dispose(); tB.dispose(); release(renderer); },
+  };
+}
+
+return { mount };
+})();
+FX["petals"] = (() => {
+// «Лепестки» — лепестки падают с глубиной и уносятся от курсора; есть снег и листья под сезон.
+// Холст 2D, без WebGL: спрайты рисуются заранее в трёх размытиях, дальние — мельче и мягче.
+
+
+const KINDS = {
+  petals: { name: 'Лепестки', colors: ['#ffc2d6', '#ff9fbf', '#ffd9e6', '#f7a8c4'], shape: 'petal' },
+  snow: { name: 'Снег', colors: ['#ffffff', '#eef4ff', '#dfe9ff'], shape: 'flake' },
+  leaves: { name: 'Листья', colors: ['#f59e0b', '#ea580c', '#fbbf24', '#b45309'], shape: 'leaf' },
+};
+
+function sprite(shape, color, blur) {
+  const s = 64, c = document.createElement('canvas');
+  c.width = c.height = s;
+  const g = c.getContext('2d');
+  if (blur) g.filter = `blur(${blur}px)`;
+  g.translate(s / 2, s / 2);
+  g.fillStyle = color;
+  if (shape === 'petal') {
+    g.beginPath();
+    g.moveTo(0, -22); g.bezierCurveTo(16, -18, 18, 8, 0, 22); g.bezierCurveTo(-18, 8, -16, -18, 0, -22);
+    g.fill();
+    g.globalAlpha = 0.35; g.fillStyle = '#fff';
+    g.beginPath(); g.ellipse(-4, -6, 4, 10, -0.3, 0, Math.PI * 2); g.fill();
+  } else if (shape === 'flake') {
+    const grd = g.createRadialGradient(0, 0, 0, 0, 0, 14);
+    grd.addColorStop(0, color); grd.addColorStop(0.6, color); grd.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = grd; g.beginPath(); g.arc(0, 0, 14, 0, Math.PI * 2); g.fill();
+  } else {
+    g.beginPath(); g.moveTo(0, -24); g.quadraticCurveTo(18, -4, 0, 24); g.quadraticCurveTo(-18, -4, 0, -24); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,.25)'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(0, -20); g.lineTo(0, 22); g.stroke();
+  }
+  return c;
+}
+
+function mount(stage, opts = {}) {
+  css('petals', `
+    .pt-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:saturate(.9) brightness(.55)}
+    .pt-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .pt-ui{position:absolute;right:clamp(16px,5vw,64px);top:clamp(80px,12vh,120px);z-index:6;display:flex;gap:6px}
+    .pt-ui button{font:600 13px/1 Onest,system-ui,sans-serif;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.3);
+      background:rgba(10,10,14,.4);color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
+    .pt-ui button[aria-pressed="true"]{background:#fff;color:#0b0b12}
+    @media (max-width:760px){.pt-ui{left:16px;right:auto;top:84px}}`);
+  const bg = document.createElement('div');
+  bg.className = 'pt-bg';
+  bg.style.backgroundImage = `url(${opts.photo || unsplash('photo-1487528699198-88d79d72479f', 1800)})`;
+  const cv = document.createElement('canvas');
+  cv.className = 'pt-cv';
+  const ui = document.createElement('div');
+  ui.className = 'pt-ui';
+  ui.innerHTML = Object.entries(KINDS).map(([k, v]) => `<button type="button" data-k="${k}" aria-pressed="${k === 'petals'}">${v.name}</button>`).join('');
+  stage.prepend(bg, cv);
+  stage.appendChild(ui);
+  const g = cv.getContext('2d');
+
+  let kind = 'petals', sprites = [];
+  const makeSprites = () => {
+    const K = KINDS[kind];
+    sprites = K.colors.map((c) => [sprite(K.shape, c, 0), sprite(K.shape, c, 1.5), sprite(K.shape, c, 3.5)]);
+  };
+  makeSprites();
+  ui.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    kind = b.dataset.k;
+    makeSprites();
+    ui.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  });
+
+  let W = 1, H = 1, dpr = 1;
+  const N = IS_MOBILE ? 70 : 150;
+  const P = [];
+  const spawn = (p, top) => {
+    p.z = 0.25 + Math.random() * 0.95;                 // глубина: 0.25 далеко, 1.2 у самого стекла
+    p.x = Math.random() * W; p.y = top ? -40 - Math.random() * H * 0.3 : Math.random() * H;
+    p.vx = 0; p.vy = 20 + Math.random() * 30;
+    p.rot = Math.random() * Math.PI * 2; p.vr = (Math.random() - 0.5) * 1.6;
+    p.flip = Math.random() * Math.PI * 2; p.vf = 1 + Math.random() * 2.2;
+    p.sw = Math.random() * Math.PI * 2; p.c = Math.floor(Math.random() * 4);
+    return p;
+  };
+  // сначала размер сцены, потом лепестки: иначе все они рождаются в углу 1×1 и расходятся только через полминуты
+  const unwatch = watchSize(stage, (w, h) => {
+    W = w; H = h; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  });
+  for (let i = 0; i < N; i++) P.push(spawn({}, false));
+  const ptr = pointer(stage);
+  let px = -9999, py = -9999, pvx = 0, pvy = 0;
+
+  const lp = loop((t, dt) => {
+    const k = REDUCED ? 0 : Math.min(dt, 0.05);
+    // курсор как ветер: толкает рядом и чуть закручивает
+    if (ptr.active) {
+      const nx = ptr.u * W, ny = (1 - ptr.v) * H;
+      if (px > -9000 && k) { pvx = (nx - px) / k; pvy = (ny - py) / k; }
+      px = nx; py = ny;
+    } else { px = py = -9999; pvx *= 0.9; pvy *= 0.9; }
+    const gust = Math.sin(t * 0.35) * 18 + Math.sin(t * 1.3) * 6;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    P.sort((a, b) => a.z - b.z);
+    for (const p of P) {
+      if (k) {
+        const dx = p.x - px, dy = p.y - py, d2 = dx * dx + dy * dy;
+        if (d2 < 22000) {
+          const f = (1 - d2 / 22000) * 1.8;
+          p.vx += (pvx * 0.02 + dx * 0.9) * f * k * 4;
+          p.vy += (pvy * 0.02 + dy * 0.5) * f * k * 4;
+        }
+        p.vx += (gust - p.vx) * k * 0.6;
+        p.vy += ((kind === 'snow' ? 26 : 38) * p.z - p.vy) * k * 0.8;
+        p.sw += k * 1.3;
+        p.x += (p.vx + Math.sin(p.sw) * 22) * k * p.z;
+        p.y += p.vy * k;
+        p.rot += p.vr * k; p.flip += p.vf * k;
+        if (p.y > H + 50 || p.x < -80 || p.x > W + 80) spawn(p, true);
+      }
+      const blur = p.z < 0.45 ? 2 : p.z > 1.05 ? 1 : 0;       // дальние и самые ближние — не в фокусе
+      const img = sprites[p.c % sprites.length][blur];
+      const size = (kind === 'snow' ? 16 : 30) * p.z;
+      g.save();
+      g.globalAlpha = Math.min(1, 0.35 + p.z * 0.6);
+      g.translate(p.x, p.y);
+      g.rotate(p.rot);
+      g.scale(kind === 'snow' ? 1 : Math.cos(p.flip) * 0.9 + 0.1, 1);    // лепесток кувыркается
+      g.drawImage(img, -size / 2, -size / 2, size, size);
+      g.restore();
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); unwatch(); bg.remove(); cv.remove(); ui.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["physics"] = (() => {
+// «Физика плашек» — услуги падают круглыми плашками, складываются горкой; их можно хватать и бросать.
+// Своя физика на холсте 2D: шаг Верле, несколько подшагов, столкновения кругов, стенки, бросок пальцем.
+
+
+const WORDS = ['Стрижка', 'Фейд', 'Борода', 'Бритьё', 'Уход', 'Укладка', 'Камуфляж седины', 'Детская стрижка',
+  'Отец и сын', 'Кофе', 'Запись онлайн', 'Окантовка', 'Королевское бритьё', 'Подарочная карта', 'Воск', 'Маска'];
+const FILLS = [['#a78bfa', '#0b0b12'], ['#f472b6', '#0b0b12'], ['#7dd3fc', '#0b0b12'], ['#fbbf24', '#0b0b12'],
+  ['#f3f1ec', '#0b0b12'], ['#1f1b2e', '#f3f1ec']];
+
+function mount(stage, opts = {}) {
+  css('physics', `.ph-cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+    .ph-cv:active{cursor:grabbing}`);
+  stage.style.background = 'radial-gradient(70% 60% at 50% 70%, #17132a 0%, #07070a 75%)';
+  stage.classList.add('no-shade');
+  const cv = document.createElement('canvas');
+  cv.className = 'ph-cv';
+  stage.prepend(cv);
+  const g = cv.getContext('2d');
+
+  let W = 1, H = 1, dpr = 1, scale = 1;
+  const bodies = [];
+  const font = (s) => `700 ${Math.round(15 * s)}px Onest, system-ui, sans-serif`;
+  const words = (IS_MOBILE ? WORDS.slice(0, 11) : WORDS);
+  const measure = (w) => { g.font = font(scale); return g.measureText(w).width; };
+
+  const unwatch = watchSize(stage, (w, h) => {
+    W = w; H = h; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    scale = Math.max(0.8, Math.min(1.25, w / 1100));
+    for (const b of bodies) b.r = Math.max(34 * scale, measure(b.word) / 2 + 16 * scale);
+  });
+
+  let spawned = 0, spawnT = 0;
+  const spawn = () => {
+    const word = words[spawned % words.length];
+    const r = Math.max(34 * scale, measure(word) / 2 + 16 * scale);
+    const x = W * (0.35 + Math.random() * 0.5), y = -r - 10;
+    const [fill, ink] = FILLS[spawned % FILLS.length];
+    bodies.push({ word, r, x, y, px: x - (Math.random() - 0.5) * 3, py: y - 2, fill, ink, hot: 0 });
+    spawned++;
+  };
+
+  // перетаскивание: схваченная плашка тянется к пальцу пружиной, при отпускании летит с его скоростью
+  let grab = null, gx = 0, gy = 0, hist = [];
+  const at = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  const onDown = (e) => {
+    const [x, y] = at(e);
+    grab = bodies.find((b) => (b.x - x) ** 2 + (b.y - y) ** 2 < b.r * b.r) || null;
+    if (grab) { gx = x; gy = y; hist = [[x, y, performance.now()]]; cv.setPointerCapture(e.pointerId); }
+  };
+  const onMove = (e) => {
+    const [x, y] = at(e);
+    for (const b of bodies) b.hover = (b.x - x) ** 2 + (b.y - y) ** 2 < b.r * b.r;
+    if (!grab) return;
+    gx = x; gy = y; hist.push([x, y, performance.now()]); if (hist.length > 5) hist.shift();
+  };
+  const onUp = () => {
+    if (grab && hist.length > 1) {
+      const [x0, y0, t0] = hist[0], [x1, y1, t1] = hist[hist.length - 1], dt = Math.max(16, t1 - t0) / 1000;
+      grab.px = grab.x - (x1 - x0) / dt / 60; grab.py = grab.y - (y1 - y0) / dt / 60;   // бросок
+    }
+    grab = null;
+  };
+  cv.addEventListener('pointerdown', onDown);
+  cv.addEventListener('pointermove', onMove);
+  cv.addEventListener('pointerup', onUp);
+  cv.addEventListener('pointercancel', onUp);
+
+  const SUB = 4, GRAV = 0.32;
+  const physics = () => {
+    for (let s = 0; s < SUB; s++) {
+      for (const b of bodies) {
+        const vx = (b.x - b.px) * 0.995, vy = (b.y - b.py) * 0.995;
+        b.px = b.x; b.py = b.y;
+        b.x += vx; b.y += vy + GRAV / SUB;
+        if (b === grab) { b.x += (gx - b.x) * 0.35; b.y += (gy - b.y) * 0.35; }
+      }
+      for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) {
+        const a = bodies[i], b = bodies[j], dx = b.x - a.x, dy = b.y - a.y, min = a.r + b.r, d2 = dx * dx + dy * dy;
+        if (d2 < min * min && d2 > 0.0001) {
+          const d = Math.sqrt(d2), push = (min - d) / d * 0.5;
+          const ma = a.r * a.r, mb = b.r * b.r, wa = mb / (ma + mb), wb = ma / (ma + mb);   // лёгкая уступает тяжёлой
+          a.x -= dx * push * wa * 2; a.y -= dy * push * wa * 2;
+          b.x += dx * push * wb * 2; b.y += dy * push * wb * 2;
+        }
+      }
+      for (const b of bodies) {
+        const floor = H - 12;
+        if (b.y + b.r > floor) { b.y = floor - b.r; const vx = b.x - b.px; b.px = b.x - vx * 0.9; }   // трение о пол
+        if (b.x - b.r < 8) b.x = 8 + b.r;
+        if (b.x + b.r > W - 8) b.x = W - 8 - b.r;
+      }
+    }
+  };
+
+  const lp = loop((t, dt) => {
+    if (spawned < words.length) {
+      spawnT -= dt;
+      if (REDUCED) { while (spawned < words.length) spawn(); }
+      else if (spawnT <= 0) { spawn(); spawnT = 0.14; }
+    }
+    // шаги физики — по времени, а не по кадрам: на слабом телефоне плашки не падают «замедленно»
+    const n = REDUCED && !grab ? 20 : Math.max(1, Math.min(4, Math.round((dt || 0.0167) * 60)));
+    for (let i = 0; i < n; i++) physics();
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.font = font(scale);
+    for (const b of bodies) {
+      b.hot += ((b.hover || b === grab ? 1 : 0) - b.hot) * 0.2;
+      g.save();
+      g.translate(b.x, b.y);
+      g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 18; g.shadowOffsetY = 8;
+      g.fillStyle = b.fill;
+      g.beginPath(); g.arc(0, 0, b.r * (1 + b.hot * 0.06), 0, Math.PI * 2); g.fill();
+      g.shadowColor = 'transparent';
+      if (b.hot > 0.05) { g.strokeStyle = `rgba(255,255,255,${b.hot * 0.8})`; g.lineWidth = 2; g.stroke(); }
+      g.fillStyle = b.ink;
+      g.fillText(b.word, 0, 1);
+      g.restore();
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() {
+      lp.stop(); unwatch(); cv.remove();
+      ['pointerdown', 'pointermove', 'pointerup', 'pointercancel'].forEach((ev, i) => cv.removeEventListener(ev, [onDown, onMove, onUp, onUp][i]));
+    },
+  };
+}
+
+return { mount };
+})();
+FX["spotlight"] = (() => {
+// «Прожектор» — зал в темноте, курсор светит фонарём: в луче проступают цвет и скрытая надпись.
+// Без курсора луч сам медленно обходит сцену. Только CSS-маска и немного JS — нагрузка лёгкая.
+
+
+function mount(stage, opts = {}) {
+  css('spotlight', `
+    .sp{position:absolute;inset:0;overflow:hidden;background:#050506;--x:50%;--y:50%;--r:230px}
+    .sp__img{position:absolute;inset:0;background-size:cover;background-position:center}
+    .sp__dark{filter:grayscale(1) brightness(.14) contrast(1.1)}
+    .sp__lit{filter:saturate(1.15) brightness(1.05);
+      -webkit-mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),#000 0%,#000 38%,rgba(0,0,0,.55) 62%,transparent 100%);
+              mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),#000 0%,#000 38%,rgba(0,0,0,.55) 62%,transparent 100%)}
+    .sp__glow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
+      background:radial-gradient(circle calc(var(--r) * 1.1) at var(--x) var(--y),rgba(255,214,150,.22),transparent 70%)}
+    .sp__secret{position:absolute;right:8%;top:30%;text-align:right;color:#fff;
+      -webkit-mask-image:radial-gradient(circle var(--r) at var(--mx) var(--my),#000 30%,transparent 72%);
+              mask-image:radial-gradient(circle var(--r) at var(--mx) var(--my),#000 30%,transparent 72%)}
+    .sp__secret b{display:block;font:800 clamp(34px,5.5vw,76px)/.95 Onest,system-ui,sans-serif;letter-spacing:-.035em;text-shadow:0 4px 30px rgba(0,0,0,.6)}
+    .sp__secret span{display:inline-block;margin-top:12px;font:600 15px/1 Onest,system-ui,sans-serif;padding:9px 14px;border-radius:999px;background:#f3f1ec;color:#0b0b10}
+    .sp__dust{position:absolute;inset:0;pointer-events:none}
+    @media (max-width:760px){.sp__secret{right:16px;left:16px;top:20%}}`);
+  const photo = opts.photo || unsplash('photo-1599011176306-4a96f1516d4d', 1800);
+  const wrap = document.createElement('div');
+  wrap.className = 'sp';
+  wrap.innerHTML = `
+    <div class="sp__img sp__dark" style="background-image:url(${photo})"></div>
+    <div class="sp__img sp__lit" style="background-image:url(${photo})"></div>
+    <div class="sp__glow"></div>
+    <canvas class="sp__dust"></canvas>
+    <div class="sp__secret"><b>${opts.secret || 'Открыто<br>до 02:00'}</b><span>${opts.hint || 'Запись на вечер'}</span></div>`;
+  stage.prepend(wrap);
+  const cv = wrap.querySelector('.sp__dust'), g = cv.getContext('2d');
+  const secret = wrap.querySelector('.sp__secret');
+
+  // пылинки в луче: видны только рядом с центром света
+  const dust = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), z: Math.random(), s: Math.random() * Math.PI * 2 }));
+  const ptr = pointer(stage);
+  let x = 0.35, y = 0.45, W = 1, H = 1, dpr = 1;
+  const resize = () => {
+    W = stage.clientWidth || 1; H = stage.clientHeight || 1; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = W * dpr; cv.height = H * dpr;
+    wrap.style.setProperty('--r', Math.round(Math.max(150, Math.min(W, H) * 0.3)) + 'px');
+  };
+  resize();
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    const tx = ptr.active ? ptr.u : 0.5 + Math.sin(t * 0.33) * 0.32, ty = ptr.active ? 1 - ptr.v : 0.45 + Math.sin(t * 0.51) * 0.2;
+    x = damp(x, tx, 6, k); y = damp(y, ty, 6, k);
+    wrap.style.setProperty('--x', (x * 100).toFixed(2) + '%');
+    wrap.style.setProperty('--y', (y * 100).toFixed(2) + '%');
+    // для надписи — координаты луча относительно неё самой
+    const r = secret.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+    secret.style.setProperty('--mx', (x * sr.width - (r.left - sr.left)) + 'px');
+    secret.style.setProperty('--my', (y * sr.height - (r.top - sr.top)) + 'px');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    const R = Math.max(150, Math.min(W, H) * 0.3);
+    for (const d of dust) {
+      d.y -= k * (0.004 + d.z * 0.01); d.s += k;
+      if (d.y < -0.05) d.y = 1.05;
+      const px = (d.x + Math.sin(d.s * 0.7) * 0.01) * W, py = d.y * H;
+      const near = 1 - Math.hypot(px - x * W, py - y * H) / R;
+      if (near <= 0) continue;
+      g.globalAlpha = near * (0.3 + d.z * 0.6);
+      g.fillStyle = '#ffe9c4';
+      g.beginPath(); g.arc(px, py, 0.6 + d.z * 1.6, 0, Math.PI * 2); g.fill();
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); ro.disconnect(); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["neon"] = (() => {
+// «Неоновая вывеска» — буквы мерцают, отражение дрожит в луже, идёт дождь; включается кнопкой по одной букве.
+// CSS-свечение и SVG-фильтр ряби для отражения; дождь — тонкие штрихи на холсте. Нагрузка лёгкая.
+
+
+function mount(stage, opts = {}) {
+  if (!document.querySelector('link[data-fx-font="comfortaa"]')) {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap';
+    l.dataset.fxFont = 'comfortaa';
+    document.head.appendChild(l);
+  }
+  css('neon', `
+    .nn{position:absolute;inset:0;overflow:hidden;background:#07060a}
+    .nn__bg{position:absolute;inset:0;background-size:cover;background-position:center 70%;filter:brightness(.3) saturate(.8) hue-rotate(-10deg)}
+    .nn__wall{position:absolute;left:0;right:0;top:0;height:56%;background:linear-gradient(180deg,#0b0a10 0%,#100c16 70%,rgba(16,12,22,0) 100%)}
+    .nn__sign{position:absolute;left:50%;top:30%;transform:translate(-50%,-50%);text-align:center;white-space:nowrap}
+    .nn__word{font:700 clamp(64px,12vw,170px)/1 Comfortaa,Onest,sans-serif;letter-spacing:.06em;color:#ffe6f4}
+    .nn__word span{display:inline-block;transition:opacity .08s,text-shadow .08s;
+      text-shadow:0 0 4px #fff,0 0 10px #ff5bb5,0 0 22px #ff3ea5,0 0 44px #ff2d95,0 0 90px #ff2d95}
+    .nn__word span.off{color:#3a2433;text-shadow:none}
+    .nn__row{margin-top:18px;display:flex;align-items:center;justify-content:center;gap:16px;font:500 clamp(16px,2.2vw,28px)/1 Comfortaa,Onest,sans-serif;
+      color:#e6fbff;letter-spacing:.08em;text-shadow:0 0 4px #fff,0 0 12px #38d5ff,0 0 26px #1fb6ff,0 0 50px #1fb6ff;transition:opacity .15s}
+    .nn__row svg{width:clamp(28px,3.4vw,44px);height:auto;filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px #38d5ff) drop-shadow(0 0 24px #1fb6ff)}
+    .nn.dark .nn__row{opacity:.12;text-shadow:none}
+    .nn__refl{position:absolute;left:50%;top:78%;transform:translate(-50%,-50%) scaleY(-1);opacity:.42;filter:url(#nnRipple) blur(2px);
+      -webkit-mask-image:linear-gradient(0deg,#000 0%,transparent 75%);mask-image:linear-gradient(0deg,#000 0%,transparent 75%)}
+    .nn__glow{position:absolute;left:50%;top:30%;width:70%;height:40%;transform:translate(-50%,-50%);pointer-events:none;
+      background:radial-gradient(closest-side,rgba(255,45,149,.22),transparent);transition:opacity .15s}
+    .nn.dark .nn__glow{opacity:.1}
+    .nn__rain{position:absolute;inset:0;width:100%;height:100%}
+    .nn__btn{position:absolute;right:clamp(16px,5vw,64px);bottom:clamp(20px,6vh,64px);z-index:6;font:600 13px/1 Onest,system-ui,sans-serif;
+      padding:10px 15px;border-radius:999px;border:1px solid rgba(255,255,255,.3);background:rgba(10,10,14,.5);color:#fff;cursor:pointer}
+    @media (max-width:760px){.nn__btn{bottom:auto;top:84px}}`);
+  const word = (opts.word || 'СТАЛЬ').split('');
+  const sub = opts.sub || 'барбершоп · до 23:00';
+  const scissors = '<svg viewBox="0 0 48 48" fill="none" stroke="#e6fbff" stroke-width="3" stroke-linecap="round"><circle cx="12" cy="35" r="7"/><circle cx="36" cy="35" r="7"/><path d="M17 30 38 6M31 30 10 6"/></svg>';
+  const sign = `<div class="nn__word">${word.map((c) => `<span>${c}</span>`).join('')}</div><div class="nn__row">${scissors}<span>${sub}</span></div>`;
+  const wrap = document.createElement('div');
+  wrap.className = 'nn';
+  wrap.innerHTML = `
+    <svg width="0" height="0" style="position:absolute"><filter id="nnRipple"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.09" numOctaves="2" seed="3" result="n">
+      <animate attributeName="baseFrequency" dur="7s" values="0.012 0.09;0.014 0.11;0.012 0.09" repeatCount="indefinite"/></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="18"/></filter></svg>
+    <div class="nn__bg" style="background-image:url(${opts.photo || unsplash('photo-1762514646662-a36ffd69da1a', 1800)})"></div>
+    <div class="nn__wall"></div><div class="nn__glow"></div>
+    <div class="nn__sign">${sign}</div><div class="nn__refl" aria-hidden="true">${sign}</div>
+    <canvas class="nn__rain"></canvas>
+    <button type="button" class="nn__btn">Выключить вывеску</button>`;
+  stage.prepend(wrap);
+  const letters = [...wrap.querySelectorAll('.nn__sign .nn__word span')], mirror = [...wrap.querySelectorAll('.nn__refl .nn__word span')];
+  const setOff = (i, off) => { letters[i].classList.toggle('off', off); mirror[i].classList.toggle('off', off); };
+  const btn = wrap.querySelector('.nn__btn');
+  let on = true, sequence = [];
+  btn.addEventListener('click', () => {
+    on = !on;
+    btn.textContent = on ? 'Выключить вывеску' : 'Включить вывеску';
+    wrap.classList.toggle('dark', !on);
+    if (!on) { letters.forEach((_, i) => setOff(i, true)); sequence = []; return; }
+    // включение: каждая буква загорается со своим «треском»
+    sequence = letters.map((_, i) => ({ i, at: performance.now() + 250 + i * 260, flick: 3 + Math.floor(Math.random() * 3) }));
+  });
+
+  const cv = wrap.querySelector('.nn__rain'), g = cv.getContext('2d');
+  let W = 1, H = 1, dpr = 1;
+  const resize = () => { W = stage.clientWidth || 1; H = stage.clientHeight || 1; dpr = Math.min(2, window.devicePixelRatio || 1); cv.width = W * dpr; cv.height = H * dpr; };
+  resize();
+  const ro = new ResizeObserver(resize);
+  ro.observe(stage);
+  const drops = Array.from({ length: 110 }, () => ({ x: Math.random(), y: Math.random(), l: 10 + Math.random() * 18, v: 0.9 + Math.random() * 0.8, a: 0.08 + Math.random() * 0.2 }));
+  let nextFlick = 2;
+
+  const lp = loop((t, dt) => {
+    const now = performance.now();
+    if (on && sequence.length) {
+      sequence = sequence.filter((s) => {
+        if (now < s.at) return true;
+        const phase = Math.floor((now - s.at) / 70);
+        if (phase < s.flick * 2) { setOff(s.i, phase % 2 === 0); return true; }
+        setOff(s.i, false);
+        return false;
+      });
+    } else if (on && !REDUCED) {
+      // живой неон: раз в несколько секунд одна буква коротко «моргает»
+      nextFlick -= dt;
+      if (nextFlick <= 0) {
+        const i = Math.floor(Math.random() * letters.length);
+        setOff(i, true);
+        setTimeout(() => { setOff(i, false); setTimeout(() => { setOff(i, true); setTimeout(() => setOff(i, !on), 60); }, 90); }, 70);
+        nextFlick = 2 + Math.random() * 4;
+      }
+    }
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, W, H);
+    g.strokeStyle = '#cfe8ff';
+    g.lineWidth = 1;
+    for (const d of drops) {
+      if (!REDUCED) { d.y += d.v * dt; d.x += d.v * dt * 0.08; }
+      if (d.y > 1.05) { d.y = -0.05; d.x = Math.random(); }
+      if (d.x > 1.02) d.x -= 1.04;
+      g.globalAlpha = d.a;
+      g.beginPath(); g.moveTo(d.x * W, d.y * H); g.lineTo(d.x * W + d.l * 0.12, d.y * H + d.l); g.stroke();
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); ro.disconnect(); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["beforeafter"] = (() => {
+// «До и после» — шторка показывает разницу, лупа под курсором — детали. Без касания шторка сама ходит.
+// «До» в образце собрано фильтром из того же фото; на живом сайте сюда ставятся два снимка клиента.
+
+
+function mount(stage, opts = {}) {
+  css('beforeafter', `
+    .ba{position:absolute;left:64%;top:54%;transform:translate(-50%,-50%);width:min(860px,58vw);aspect-ratio:16/10;border-radius:22px;overflow:hidden;
+      box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);touch-action:pan-y;user-select:none;cursor:ew-resize;--pos:50%}
+    .ba__img{position:absolute;inset:0;background-size:cover;background-position:center}
+    .ba__before{filter:grayscale(.75) sepia(.35) brightness(.72) contrast(.92);clip-path:inset(0 calc(100% - var(--pos)) 0 0)}
+    .ba__before::after{content:"";position:absolute;inset:0;mix-blend-mode:multiply;opacity:.55;
+      background:radial-gradient(22% 16% at 28% 62%,rgba(90,70,40,.8),transparent 70%),radial-gradient(14% 10% at 64% 40%,rgba(90,70,40,.6),transparent 70%),
+      radial-gradient(18% 12% at 45% 80%,rgba(70,60,40,.7),transparent 70%)}
+    .ba__line{position:absolute;top:0;bottom:0;left:var(--pos);width:2px;margin-left:-1px;background:#fff;box-shadow:0 0 18px rgba(0,0,0,.4)}
+    .ba__knob{position:absolute;top:50%;left:var(--pos);width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;background:#fff;color:#0b0b10;
+      display:grid;place-items:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+    .ba__knob svg{width:24px;height:24px}
+    .ba__tag{position:absolute;top:16px;font:700 13px/1 Onest,system-ui,sans-serif;padding:8px 12px;border-radius:999px;background:rgba(10,10,14,.6);color:#fff;backdrop-filter:blur(6px)}
+    .ba__tag--a{left:16px}.ba__tag--b{right:16px;background:#f3f1ec;color:#0b0b10}
+    .ba__lens{position:absolute;width:170px;height:170px;margin:-85px 0 0 -85px;border-radius:50%;pointer-events:none;opacity:0;transition:opacity .2s;
+      box-shadow:0 0 0 3px #fff,0 18px 40px rgba(0,0,0,.5);background-repeat:no-repeat}
+    .ba:hover .ba__lens{opacity:1}
+    @media (hover:none){.ba__lens{display:none}}
+    @media (max-width:1000px){.ba{left:50%;top:66%;width:92vw;aspect-ratio:1/1;max-height:52vh;width:min(92vw,52vh)}}`);
+  const photo = opts.photo || unsplash('photo-1781249144562-e15ab4c9f63c', 1800);
+  stage.style.background = 'radial-gradient(70% 60% at 50% 55%, #16131f 0%, #07070a 75%)';
+  stage.classList.add('no-shade');
+  const ba = document.createElement('div');
+  ba.className = 'ba';
+  ba.setAttribute('role', 'slider');
+  ba.setAttribute('aria-label', 'Сравнение до и после');
+  ba.setAttribute('aria-valuemin', '0');
+  ba.setAttribute('aria-valuemax', '100');
+  ba.tabIndex = 0;
+  ba.innerHTML = `<div class="ba__img" style="background-image:url(${photo})"></div>
+    <div class="ba__img ba__before" style="background-image:url(${photo})"></div>
+    <div class="ba__line"></div>
+    <div class="ba__knob"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div>
+    <span class="ba__tag ba__tag--a">${opts.before || 'До уборки'}</span><span class="ba__tag ba__tag--b">${opts.after || 'После'}</span>
+    <div class="ba__lens"></div>`;
+  stage.appendChild(ba);
+  const lens = ba.querySelector('.ba__lens');
+
+  let pos = 50, target = 50, touched = 0, drag = false;
+  const at = (e) => { const r = ba.getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height, r]; };
+  const onDown = (e) => { drag = true; touched = performance.now(); const [u] = at(e); target = u * 100; ba.setPointerCapture(e.pointerId); };
+  const onMove = (e) => {
+    const [u, v, r] = at(e);
+    if (drag) { target = Math.min(100, Math.max(0, u * 100)); touched = performance.now(); }
+    // лупа: в 2,2 раза крупнее, показывает ту сторону шторки, над которой курсор
+    const Z = 2.2, before = u * 100 < pos;
+    lens.style.left = u * 100 + '%'; lens.style.top = v * 100 + '%';
+    lens.style.backgroundImage = `url(${photo})`;
+    lens.style.backgroundSize = `${r.width * Z}px ${r.height * Z}px`;
+    lens.style.backgroundPosition = `${-(u * r.width * Z - 85)}px ${-(v * r.height * Z - 85)}px`;
+    lens.style.filter = before ? 'grayscale(.75) sepia(.35) brightness(.72) contrast(.92)' : 'none';
+  };
+  const onUp = () => { drag = false; };
+  const onKey = (e) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { target = Math.min(100, Math.max(0, target + (e.key === 'ArrowLeft' ? -5 : 5))); touched = performance.now(); e.preventDefault(); }
+  };
+  ba.addEventListener('pointerdown', onDown);
+  ba.addEventListener('pointermove', onMove);
+  ba.addEventListener('pointerup', onUp);
+  ba.addEventListener('keydown', onKey);
+
+  const lp = loop((t, dt) => {
+    const k = dt || 0.016;
+    if (!REDUCED && !drag && performance.now() - touched > 3500) target = 50 + Math.sin(t * 0.6) * 22;
+    pos = damp(pos, target, 8, k);
+    ba.style.setProperty('--pos', pos.toFixed(2) + '%');
+    ba.setAttribute('aria-valuenow', String(Math.round(pos)));
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); ba.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["menufold"] = (() => {
+// «Меню-гармошка» — буклет меню раскладывается гармошкой по мере прокрутки (CSS 3D, вложенные панели).
+// На телефоне после раскладки буклет проезжает вбок, чтобы каждая панель была крупной.
+
+
+const PANELS = [
+  { cover: true, title: 'ПУРИ', sub: 'пекарня · кафе', photo: 'photo-1590301157172-7ba48dd1c2b2' },
+  { title: 'Выпечка', photo: 'photo-1612950365098-e3914d82ee85', items: [['Хачапури по-аджарски', 18], ['Пури из тонэ', 3], ['Круассан', 6], ['Булочка с корицей', 7]] },
+  { title: 'Завтраки', photo: 'photo-1615485736894-a2d2e6d4cd9a', items: [['Сырники со сметаной', 16], ['Шакшука', 19], ['Каша с ягодами', 12], ['Яйцо пашот и авокадо', 21]] },
+  { title: 'Кофе', photo: 'photo-1631311253861-52eaf0337adb', items: [['Эспрессо', 5], ['Капучино', 8], ['Флэт уайт', 9], ['Раф с лавандой', 11]], cta: 'Заказать с собой' },
+];
+
+function mount(stage, opts = {}) {
+  css('menufold', `
+    .mf{position:absolute;inset:0;perspective:1800px;overflow:hidden;background:radial-gradient(70% 60% at 50% 55%,#1a1510 0%,#080706 75%)}
+    .mf__book{position:absolute;left:50%;top:52%;width:var(--pw);height:calc(var(--pw) * 1.62);transform-style:preserve-3d;will-change:transform}
+    .mf__p{position:absolute;top:0;left:0;width:100%;height:100%;transform-style:preserve-3d}
+    .mf__child{left:100%;transform-origin:0 50%;transform:rotateY(calc(var(--dir) * var(--f) * 178deg))}
+    .mf__face,.mf__back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:3px}
+    .mf__face{background:#f6efe3;color:#2b2118;padding:calc(var(--pw) * .09);display:flex;flex-direction:column;gap:calc(var(--pw) * .05);
+      font:500 calc(var(--pw) * .058)/1.3 Onest,system-ui,sans-serif;box-shadow:inset 0 0 0 1px rgba(43,33,24,.08)}
+    .mf__face::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:3px;
+      background:linear-gradient(90deg,rgba(0,0,0,var(--sh)) 0%,rgba(0,0,0,0) 40%);opacity:var(--f)}
+    .mf__back{transform:rotateY(180deg);background:#e2d6c2}
+    .mf__img{width:100%;aspect-ratio:1.6;border-radius:calc(var(--pw) * .04);background-size:cover;background-position:center}
+    .mf__face h3{margin:0;font:800 calc(var(--pw) * .1)/1 Onest,system-ui,sans-serif;letter-spacing:-.02em}
+    .mf__row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed rgba(43,33,24,.22);padding-bottom:calc(var(--pw) * .025)}
+    .mf__row b{color:#c2502a;font-weight:700;white-space:nowrap}
+    .mf__cover{background:#2b2118;color:#f6efe3;justify-content:center;align-items:center;text-align:center}
+    .mf__cover .mf__img{border-radius:50%;width:62%;aspect-ratio:1}
+    .mf__cover h3{font-size:calc(var(--pw) * .2);letter-spacing:.12em}
+    .mf__cover small{letter-spacing:.2em;text-transform:uppercase;font-size:calc(var(--pw) * .045);opacity:.7}
+    .mf__cover i{font-style:normal;margin-top:calc(var(--pw) * .05);padding:6px 12px;border:1px solid rgba(246,239,227,.35);border-radius:999px;font-size:calc(var(--pw) * .05)}
+    .mf__cta{margin-top:auto;text-align:center;background:#c2502a;color:#fff;border-radius:999px;padding:calc(var(--pw) * .04);font-weight:700}`);
+
+  const panelHTML = (p) => p.cover
+    ? `<div class="mf__face mf__cover"><div class="mf__img" style="background-image:url(${unsplash(p.photo, 500)})"></div><h3>${p.title}</h3><small>${p.sub}</small><i>Меню</i></div>`
+    : `<div class="mf__face"><div class="mf__img" style="background-image:url(${unsplash(p.photo, 600)})"></div><h3>${p.title}</h3>`
+      + p.items.map(([n, pr]) => `<div class="mf__row"><span>${n}</span><b>${pr} ₾</b></div>`).join('')
+      + (p.cta ? `<div class="mf__cta">${p.cta}</div>` : '') + '</div>';
+  // вложенные панели: каждая следующая крепится к правому краю предыдущей и складывается в свою сторону
+  let html = '';
+  for (let i = PANELS.length - 1; i >= 0; i--) {
+    const cls = i === 0 ? 'mf__p' : 'mf__p mf__child';
+    html = `<div class="${cls}" style="--dir:${i % 2 ? -1 : 1};--sh:${i % 2 ? 0.35 : 0.18}">${panelHTML(PANELS[i])}<div class="mf__back"></div>${html}</div>`;
+  }
+  const wrap = document.createElement('div');
+  wrap.className = 'mf';
+  wrap.innerHTML = `<div class="mf__book">${html}</div>`;
+  stage.prepend(wrap);
+  const book = wrap.querySelector('.mf__book');
+
+  let pw = 240, narrow = false, target = null, shown = 0;
+  const unwatch = watchSize(stage, (w, h) => {
+    narrow = w < 760;
+    pw = narrow ? Math.min(w * 0.72, h * 0.5 / 1.62 * 1.6) : Math.min(250, (w * 0.84) / 4, h * 0.62 / 1.62);
+    wrap.style.setProperty('--pw', pw.toFixed(1) + 'px');
+  });
+
+  const clamp01 = (x) => Math.min(1, Math.max(0, x));
+  const ease = (x) => x * x * (3 - 2 * x);
+  const lp = loop((t) => {
+    shown = damp(shown, target ?? 0, 5, 0.016);
+    const p = shown;
+    // сложено → раскрывается → (на телефоне) едем вдоль панелей
+    const f = 1 - ease(clamp01((p - 0.1) / (narrow ? 0.3 : 0.45)));
+    const pan = narrow ? ease(clamp01((p - 0.42) / 0.5)) * 3 : 0;
+    wrap.style.setProperty('--f', f.toFixed(4));
+    const shift = narrow ? -(0.5 + pan) * pw : -(0.5 + 1.5 * (1 - f)) * pw;
+    book.style.transform = `translate3d(${shift.toFixed(1)}px, -50%, 0) rotateX(${(8 + f * 6).toFixed(2)}deg) rotateY(${(-10 * f + Math.sin(t * 0.4) * 1.5).toFixed(2)}deg)`;
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    setProgress(p) { if (target === null) shown = p; target = p; },
+    destroy() { lp.stop(); unwatch(); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+FX["infographics"] = (() => {
+// «Живая инфографика» — графики рисуются, цифры досчитываются, когда блок появляется на экране.
+// SVG и немного JS; пример — результаты клиента тренера за 12 недель. Нагрузка лёгкая.
+
+
+const WEIGHT = [92, 91.2, 90.1, 89.4, 88.9, 87.8, 86.9, 86.1, 85, 84.2, 81.4, 80];
+const SESSIONS = [2, 3, 3, 4, 3, 4, 5, 4, 5, 4, 5, 6];
+
+function mount(stage, opts = {}) {
+  css('infographics', `
+    .ig{position:absolute;right:clamp(16px,5vw,64px);top:50%;transform:translateY(-44%);width:min(720px,54vw);display:grid;gap:14px;
+      grid-template-columns:1fr 1fr;font-family:Onest,system-ui,sans-serif;color:#f3f1ec}
+    .ig__c{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.09);border-radius:18px;padding:18px 20px;
+      opacity:0;transform:translateY(18px);transition:opacity .6s,transform .8s cubic-bezier(.2,.9,.2,1);transition-delay:calc(var(--i) * 90ms)}
+    .ig.go .ig__c{opacity:1;transform:none}
+    .ig__wide{grid-column:1/-1}
+    .ig__h{font-size:13px;color:#a8a5b4;display:flex;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .ig__h b{color:#f3f1ec;font-weight:600;white-space:nowrap}
+    .ig svg{width:100%;height:auto;display:block;overflow:visible}
+    .ig__line{fill:none;stroke:url(#igGrad);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+      transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1) .3s}
+    .ig.go .ig__line{stroke-dashoffset:0}
+    .ig__area{fill:url(#igArea);opacity:0;transition:opacity 1s 1.4s}
+    .ig.go .ig__area{opacity:1}
+    .ig__pt{fill:#0b0b12;stroke:#a78bfa;stroke-width:2;opacity:0;transition:opacity .3s;transition-delay:calc(.3s + var(--i) * 140ms)}
+    .ig.go .ig__pt{opacity:1}
+    .ig__pt:hover{fill:#a78bfa}
+    .ig__pt:hover + .ig__tip{opacity:1}
+    .ig__tip{font-size:11px;fill:#f3f1ec;opacity:0;pointer-events:none;transition:opacity .2s}
+    .ig__end{fill:#7dd3fc;opacity:0;transition:opacity .4s 2s}
+    .ig.go .ig__end{opacity:1}
+    .ig__pulse{fill:none;stroke:#7dd3fc;stroke-width:2;opacity:0}
+    .ig.go .ig__pulse{animation:igPulse 2s ease-out 2.2s infinite}
+    @keyframes igPulse{0%{opacity:.8;r:5}100%{opacity:0;r:18}}
+    .ig__donut circle{fill:none;stroke-width:12}
+    .ig__ring{stroke:#a78bfa;stroke-linecap:round;stroke-dasharray:var(--c);stroke-dashoffset:var(--c);transform:rotate(-90deg);transform-origin:50% 50%;
+      transition:stroke-dashoffset 1.6s cubic-bezier(.4,0,.2,1) .5s}
+    .ig.go .ig__ring{stroke-dashoffset:var(--off)}
+    .ig__big{font-size:34px;font-weight:800;letter-spacing:-.03em}
+    .ig__bars rect{fill:#7dd3fc;transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .7s cubic-bezier(.2,.9,.2,1);transition-delay:calc(.4s + var(--i) * 60ms)}
+    .ig.go .ig__bars rect{transform:scaleY(1)}
+    .ig__kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .ig__kpi{font-size:12px;color:#a8a5b4}
+    .ig__kpi b{display:block;font-size:26px;color:#f3f1ec;letter-spacing:-.02em;margin-bottom:4px}
+    @media (max-width:1000px){.ig{left:16px;right:16px;width:auto;top:auto;bottom:18px;transform:none}.ig__big{font-size:28px}}
+    @media (max-width:760px){.ig{gap:10px}.ig__c{padding:14px}.ig__kpi b{font-size:21px}}
+    @media (prefers-reduced-motion:reduce){.ig *{transition:none!important;animation:none!important}}`);
+  stage.style.background = 'radial-gradient(70% 60% at 70% 50%, #15122a 0%, #07070a 75%)';
+  stage.classList.add('no-shade');
+
+  // линия веса: точки по 12 неделям
+  const Wd = 560, Hd = 150, mn = 78, mx = 93;
+  const pts = WEIGHT.map((v, i) => [i / (WEIGHT.length - 1) * Wd, Hd - (v - mn) / (mx - mn) * Hd]);
+  const d = pts.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join(' ');
+  let len = 0;
+  for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+  const C = 2 * Math.PI * 44, pct = 0.78;
+  const barW = 22, gap = (Wd / 2 - 12 * barW) / 11;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ig';
+  wrap.innerHTML = `
+    <div class="ig__c ig__wide" style="--i:0">
+      <div class="ig__h"><span>Вес, кг · 12 недель</span><b>−12 кг</b></div>
+      <svg viewBox="-8 -12 ${Wd + 16} ${Hd + 30}">
+        <defs><linearGradient id="igGrad" x1="0" x2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#7dd3fc"/></linearGradient>
+          <linearGradient id="igArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#a78bfa" stop-opacity=".35"/><stop offset="1" stop-color="#a78bfa" stop-opacity="0"/></linearGradient></defs>
+        <path class="ig__area" d="${d} L${Wd} ${Hd} L0 ${Hd} Z"/>
+        <path class="ig__line" d="${d}" style="--len:${len.toFixed(0)}"/>
+        ${pts.map(([x, y], i) => `<circle class="ig__pt" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" style="--i:${i}"/><text class="ig__tip" x="${x.toFixed(1)}" y="${(y - 12).toFixed(1)}" text-anchor="middle">${WEIGHT[i]} кг</text>`).join('')}
+        <circle class="ig__pulse" cx="${pts[11][0]}" cy="${pts[11][1]}" r="5"/><circle class="ig__end" cx="${pts[11][0]}" cy="${pts[11][1]}" r="5.5"/>
+      </svg>
+    </div>
+    <div class="ig__c" style="--i:1">
+      <div class="ig__h"><span>План выполнен</span></div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <svg class="ig__donut" viewBox="0 0 100 100" style="width:96px"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.08)"/>
+          <circle class="ig__ring" cx="50" cy="50" r="44" style="--c:${C.toFixed(1)};--off:${(C * (1 - pct)).toFixed(1)}"/></svg>
+        <span class="ig__big" data-count="78" data-suffix="%">0%</span>
+      </div>
+    </div>
+    <div class="ig__c" style="--i:2">
+      <div class="ig__h"><span>Тренировок в неделю</span><b>до 6</b></div>
+      <svg class="ig__bars" viewBox="0 0 ${Wd / 2} 90">${SESSIONS.map((v, i) => `<rect x="${(i * (barW + gap)).toFixed(1)}" y="${90 - v * 14}" width="${barW}" height="${v * 14}" rx="5" style="--i:${i};opacity:${0.45 + v / 12}"/>`).join('')}</svg>
+    </div>
+    <div class="ig__c ig__wide" style="--i:3">
+      <div class="ig__kpis">
+        <div class="ig__kpi"><b data-count="-12" data-suffix=" кг">0 кг</b>за 3 месяца</div>
+        <div class="ig__kpi"><b data-count="48" data-suffix="">0</b>тренировок</div>
+        <div class="ig__kpi"><b data-count="100" data-suffix="%">0%</b>посещаемость</div>
+      </div>
+    </div>`;
+  stage.appendChild(wrap);
+  const counters = [...wrap.querySelectorAll('[data-count]')];
+  let started = -1;
+
+  const lp = loop((t) => {
+    if (started < 0) { started = t; requestAnimationFrame(() => wrap.classList.add('go')); setTimeout(() => wrap.classList.add('go'), 200); }
+    const k = REDUCED ? 1 : Math.min(1, Math.max(0, (t - started - 0.5) / 1.6));
+    const e = 1 - Math.pow(1 - k, 3);
+    for (const c of counters) {
+      const v = Math.round(+c.dataset.count * e);
+      c.textContent = (v < 0 ? '−' + Math.abs(v) : v) + c.dataset.suffix;
+    }
+  });
+
+  return {
+    start: lp.start, stop: lp.stop,
+    destroy() { lp.stop(); wrap.remove(); },
+  };
+}
+
+return { mount };
+})();
+window.FX_REGISTRY = FX;
+// Полка эффектов: эффект подгружается, когда секция подходит к экрану, рисует — пока видна.
+// Высокие секции (data-scroll) получают прогресс прокрутки 0…1 — от него живут «прокручиваемые» эффекты.
+const sections = [...document.querySelectorAll('[data-fx]')];
+
+// ?solo=fx6&p=0.4 — один эффект на весь экран, без остальной страницы: ссылка для клиента и для снимков.
+// Прокручиваемому эффекту момент задаётся числом p, а не прокруткой.
+const q = new URLSearchParams(location.search);
+const solo = q.get('solo');
+if (solo) {
+  document.body.classList.add('solo');
+  // style.display, а не hidden: у .intro и .how свой display в CSS, он перебил бы атрибут
+  document.querySelectorAll('.intro, .how').forEach((el) => { el.style.display = 'none'; });
+  sections.forEach((s) => {
+    if (s.id !== solo) { s.style.display = 'none'; return; }
+    s.style.setProperty('--h', '100svh');
+    if (q.has('p')) s._soloP = Math.min(1, Math.max(0, parseFloat(q.get('p')) || 0));
+  });
+}
+
+async function ensure(sec) {
+  if (sec._fx || sec._loading) return sec._fx;
+  sec._loading = true;
+  try {
+    // в собранном index.html эффекты уже вшиты (FX_REGISTRY); в page.html — подгружаются файлами
+    const mod = (window.FX_REGISTRY && window.FX_REGISTRY[sec.dataset.fx]) || await import(`./fx/${sec.dataset.fx}.js`);
+    sec._fx = mod.mount(sec.querySelector('.fx__stage'), { ...sec.dataset });
+    sec.classList.add('is-ready');
+    progress();
+    // пока грузился, пользователь мог уйти далеко вниз — тогда сразу выгружаем
+    if (sec._near === false) { unload(sec); return null; }
+  } catch (e) {
+    console.error('эффект не загрузился:', sec.dataset.fx, e);
+    sec.classList.add('is-broken');
+  }
+  return sec._fx;
+}
+
+const io = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    const sec = e.target;
+    if (e.isIntersecting) ensure(sec).then((fx) => fx && sec._visible && fx.start());
+    else if (sec._fx) sec._fx.stop();
+    sec._visible = e.isIntersecting;
+  }
+}, { rootMargin: '250px 0px' });
+sections.forEach((s) => io.observe(s));
+
+// Эффект, ушедший дальше полутора экранов, выгружается целиком. Браузер держит около 16 живых
+// WebGL-сцен, на странице их больше — без выгрузки он молча гасил бы самые старые.
+function unload(sec) {
+  if (!sec._fx) return;
+  try { sec._fx.destroy(); } catch (e) { console.error('эффект не выгрузился:', sec.dataset.fx, e); }
+  sec._fx = null;
+  sec._loading = false;
+  sec.classList.remove('is-ready');
+}
+const far = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    e.target._near = e.isIntersecting;
+    if (!e.isIntersecting) unload(e.target);
+  }
+}, { rootMargin: '150% 0px' });
+sections.forEach((s) => far.observe(s));
+
+// подпись эффекта видна в начале и в конце, пока идёт сама история — растворяется
+const capOpacity = (p) => Math.max(1 - Math.min(1, Math.max(0, (p - 0.04) / 0.08)), Math.min(1, Math.max(0, (p - 0.92) / 0.06)));
+
+function progress() {
+  const vh = window.innerHeight;
+  for (const s of sections) {
+    if (!s.hasAttribute('data-scroll')) continue;
+    let p;
+    if (s._soloP != null) p = s._soloP;
+    else {
+      const r = s.getBoundingClientRect();
+      p = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - vh)));
+    }
+    s.style.setProperty('--capo', capOpacity(p).toFixed(3));
+    if (s._fx && s._fx.setProgress) s._fx.setProgress(p);
+  }
+}
+let queued = false;
+addEventListener('scroll', () => {
+  if (queued) return;
+  queued = true;
+  requestAnimationFrame(() => { queued = false; progress(); });
+}, { passive: true });
+addEventListener('resize', progress);
+progress();   // подписи встают в нужное состояние сразу, до загрузки эффектов и без прокрутки
+
+// ссылка на момент эффекта: #fx3@0.5 — середина третьего (удобно показать клиенту и снять кадр)
+function jumpToMoment() {
+  const m = location.hash.match(/^#(fx\d+)@([\d.]+)$/);
+  if (!m) return;
+  const sec = document.getElementById(m[1]);
+  if (!sec) return;
+  const p = Math.min(1, Math.max(0, parseFloat(m[2])));
+  const y = sec.offsetTop + p * Math.max(0, sec.offsetHeight - window.innerHeight);
+  document.documentElement.style.scrollBehavior = 'auto';
+  window.scrollTo(0, y);
+  progress();
+}
+addEventListener('load', jumpToMoment);
+addEventListener('hashchange', jumpToMoment);
+
+// номер текущего эффекта в меню
+const links = [...document.querySelectorAll('.nav a')];
+const spy = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+  }
+}, { rootMargin: '-45% 0px -50% 0px' });
+sections.forEach((s) => spy.observe(s));
+
+// заголовок: буквы встают по очереди. Буквы собраны в слова: иначе на телефоне строка рвётся
+// посреди слова («эффекто / в»), ведь для браузера каждая буква — отдельный блок (поймано 25.09)
+document.querySelectorAll('[data-split]').forEach((el) => {
+  const words = el.textContent.trim().split(/\s+/);
+  el.textContent = '';
+  let i = 0;
+  words.forEach((w, k) => {
+    const word = document.createElement('span');
+    word.className = 'wd';
+    [...w].forEach((ch) => {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.style.setProperty('--i', i++);
+      s.textContent = ch;
+      word.appendChild(s);
+    });
+    el.appendChild(word);
+    if (k < words.length - 1) { el.appendChild(document.createTextNode(' ')); i++; }
+  });
+  // кадр анимации в фоновой вкладке не приходит — запасной таймер, чтобы заголовок не остался невидимым
+  const go = () => el.classList.add('go');
+  requestAnimationFrame(go);
+  setTimeout(go, 300);
+});
+
+</script>
+</body>
+</html>
